@@ -21,7 +21,7 @@ public function books_details($id)
 {
     $book = Book::with('category', 'reviews')->findOrFail($id);
     if (auth()->check()) {
-        return view('books.show', compact('book'));
+        return view('books.auth-books', compact('book'));
     }
     return view('books.guest-books', compact('book'));
 }

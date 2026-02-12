@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
             'middle_name' => 'Bulahao',
             'last_name' => 'Bongo',
             'suffix' => '',
-            'email' => 'try@example.com',
+            'email' => 'try@gmail.com',
             'role' => 'customer',
             'password' => Hash::make('notorious'),
         ]);

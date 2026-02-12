@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->restrictOnDelete();
             $table->decimal('total_amount', 10,2);
-            $table->string('status')->default('Pending');
+            $table->enum('status', ['Pending', 'Processing', 'Shipped', 'Delivered', 
+            'Cancelled', 'Failed'])->default('Pending'); 
             $table->timestamps();
         });
     }

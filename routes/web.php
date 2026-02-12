@@ -20,5 +20,11 @@ Route::middleware('auth')->group(function () {
 });
 
 
+Route::get('/cart', function(){
+    return view('cart.cart');
+})->name('cart');
+
+
 Route::get('/book_details/{id}', [BookController::class, 'books_details'])->name('get_books_details');
 require __DIR__.'/auth.php';
+

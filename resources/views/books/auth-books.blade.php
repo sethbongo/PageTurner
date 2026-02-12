@@ -51,7 +51,7 @@
                                     <span class="text-gray-600 font-semibold">Stock Available:</span>
                                     @if($book->stock_quantity > 0)
                                         <span class="ml-2 text-lg font-semibold {{ $book->stock_quantity < 10 ? 'text-orange-600' : 'text-green-600' }}">
-                                            {{ $book->stock_quantity }} units
+                                            {{ $book->stock_quantity }} 
                                         </span>
                                     @else
                                         <span class="ml-2 text-lg font-semibold text-red-600">Out of Stock</span>
@@ -59,12 +59,10 @@
                                 </div>
 
                                 <div class="pt-4">
-                                    <button class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200
-                                                    {{ $book->stock_quantity == 0 ? 'opacity-50 cursor-not-allowed' : '' }}"
-                                            {{ $book->stock_quantity == 0 ? 'disabled' : '' }}>
-                                        {{ $book->stock_quantity == 0 ? 'Out of Stock' : 'Add to Cart' }}
-                                    </button>
+                                            <x-add-to-cart-button :book="$book"/>
                                 </div>
+
+                                
                             </div>
 
                             <div class="mt-8">

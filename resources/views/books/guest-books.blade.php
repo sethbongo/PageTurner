@@ -48,7 +48,7 @@
                                     <span class="text-gray-600 font-semibold">Stock Available:</span>
                                     @if($book->stock_quantity > 0)
                                         <span class="ml-2 text-lg font-semibold {{ $book->stock_quantity < 10 ? 'text-orange-600' : 'text-green-600' }}">
-                                            {{ $book->stock_quantity }} units
+                                            {{ $book->stock_quantity }}
                                         </span>
                                     @else
                                         <span class="ml-2 text-lg font-semibold text-red-600">Out of Stock</span>
