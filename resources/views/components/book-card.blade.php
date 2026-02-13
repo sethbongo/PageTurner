@@ -47,5 +47,7 @@
         
         <!-- Add to Cart Button - Not wrapped in link -->
         <x-add-to-cart-button :book="$book"/>
+
     </div>
+    
 </div>

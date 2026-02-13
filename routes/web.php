@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Book;
@@ -20,10 +21,10 @@ Route::middleware('auth')->group(function () {
 });
 
 
-Route::get('/cart', function(){
-    return view('cart.cart');
-})->name('cart');
+Route::get('/cart', [CartController::class, 'cart_view'])->name('cart');
 
+
+Route::post('/add_to_cart', [Cartcontroller::class, 'add_to_cart' ])->name('add-to-cart');
 
 Route::get('/book_details/{id}', [BookController::class, 'books_details'])->name('get_books_details');
 require __DIR__.'/auth.php';

@@ -60,6 +60,8 @@
 
                                 <div class="pt-4">
                                             <x-add-to-cart-button :book="$book"/>
+                                            @include('cart.add-to-cart-modal')
+
                                 </div>
 
                                 

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->restrictOnDelete();
             $table->decimal('total_amount', 10,2);
             $table->enum('status', ['Pending', 'Processing', 'Shipped', 'Delivered', 
-            'Cancelled', 'Failed'])->default('Pending'); 
+            'Cancelled', 'Failed', 'Cart'])->default('Cart'); 
             $table->timestamps();
         });
     }
