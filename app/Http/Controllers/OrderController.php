@@ -1,0 +1,48 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Order;
+
+class OrderController extends Controller
+{
+    public function show_orders()
+    {
+        $orders = auth()->user()->orders()
+            ->whereNot('status', 'Cart')
+            ->with(['orderItems.book'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('orders.orders', compact('orders'));
+    }
+
+    public function cancel($orderId)
+    {
+        $order = Order::findOrFail($orderId);
+
+        if ($order->user_id !== auth()->id()) {
+            return redirect()->route('orders.show')->withErrors(['error' => 'Unauthorized access.']);
+        }
+
+        if (!in_array($order->status, ['Pending', 'Processing'])) {
+            return redirect()->route('orders.show')
+                ->withErrors(['error' => 'This order cannot be cancelled. Current status: ' . $order->status]);
+        }
+
+        $orderItems = $order->orderItems()->with('book')->get();
+        
+        foreach ($orderItems as $item) {
+            $book = $item->book;
+            $book->stock_quantity += $item->quantity;
+            $book->save();
+        }
+
+        $order->update([
+            'status' => 'Cancelled'
+        ]);
+
+        return redirect()->route('orders.show')
+            ->with('success', 'Order #' . $order->id . ' has been cancelled successfully. Stock has been restored.');
+    }
+}

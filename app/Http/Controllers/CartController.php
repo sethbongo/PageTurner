@@ -6,15 +6,36 @@ use App\Models\Book;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
-use function PHPUnit\Framework\returnArgument;
 
 class CartController extends Controller
 {
-    public function cart_view(){
-        return view('cart.cart');
+ 
+
+
+# find order using user_id and status is cart
+# in orderitems, match the order_id
+public function cart_view() {
+
+    $order = auth()->user()->orders()
+        ->where('status', 'Cart')
+        ->first();
+
+    if (!$order) {
+        $order_items = collect();
+    } else {
+        $order_items = $order->orderItems()
+            ->with('book')
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 
-    public function add_to_cart(Request $request){
+    return view('cart.cart', compact('order', 'order_items'));
+}
+
+
+
+
+public function add_to_cart(Request $request){
         $request->validate([
             'book_id' => 'required|exists:books,id',
             'quantity' => 'required|integer|min:1'
@@ -67,5 +88,110 @@ class CartController extends Controller
         ]);
 
         return redirect()->route('dashboard')->with('success', 'Item added to cart successfully!');
+    }
+
+    public function update_quantity(Request $request, $orderItemId)
+    {
+        $request->validate([
+            'quantity' => 'required|integer|min:1'
+        ]);
+
+        $orderItem = OrderItem::with('book')->findOrFail($orderItemId);
+        
+        $cartOrder = auth()->user()->orders()
+            ->where('status', 'Cart')
+            ->where('id', $orderItem->order_id)
+            ->first();
+
+        if (!$cartOrder) {
+            return redirect()->route('cart')->withErrors(['error' => 'Unauthorized access.']);
+        }
+
+        $requestedQuantity = (int) $request->quantity;
+        $book = $orderItem->book;
+
+        if ($requestedQuantity > $book->stock_quantity) {
+            return redirect()->route('cart')
+                ->withErrors(['quantity' => 'Not enough stock available. Only ' . $book->stock_quantity . ' items left.']);
+        }
+
+        $orderItem->update(['quantity' => $requestedQuantity]);
+
+        $cartTotal = OrderItem::where('order_id', $cartOrder->id)
+            ->join('books', 'order_items.book_id', '=', 'books.id')
+            ->sum(\DB::raw('order_items.quantity * books.price'));
+        
+        $cartOrder->update(['total_amount' => $cartTotal]);
+
+        return redirect()->route('cart')->with('success', 'Cart updated successfully!');
+    }
+
+    public function remove_from_cart($orderItemId)
+    {
+        $orderItem = OrderItem::findOrFail($orderItemId);
+        
+        // Check if this order item belongs to the authenticated user's cart
+        $cartOrder = auth()->user()->orders()
+            ->where('status', 'Cart')
+            ->where('id', $orderItem->order_id)
+            ->first();
+
+        if (!$cartOrder) {
+            return redirect()->route('cart')->withErrors(['error' => 'Unauthorized access.']);
+        }
+
+        $orderItem->delete();
+
+        // Recalculate cart total
+        $cartTotal = OrderItem::where('order_id', $cartOrder->id)
+            ->join('books', 'order_items.book_id', '=', 'books.id')
+            ->sum(\DB::raw('order_items.quantity * books.price'));
+        
+        $cartOrder->update(['total_amount' => $cartTotal]);
+
+        return redirect()->route('cart')->with('success', 'Item removed from cart.');
+    }
+
+    public function checkout()
+    {
+        // Get user's cart order
+        $cartOrder = auth()->user()->orders()
+            ->where('status', 'Cart')
+            ->first();
+
+        if (!$cartOrder) {
+            return redirect()->route('cart')->withErrors(['error' => 'Your cart is empty.']);
+        }
+
+        // Get all cart items with books
+        $cartItems = $cartOrder->orderItems()->with('book')->get();
+
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('cart')->withErrors(['error' => 'Your cart is empty.']);
+        }
+
+        // Validate stock availability for all items
+        foreach ($cartItems as $item) {
+            if ($item->quantity > $item->book->stock_quantity) {
+                return redirect()->route('cart')
+                    ->withErrors(['stock' => 'Not enough stock for ' . $item->book->title . '. Only ' . $item->book->stock_quantity . ' left.']);
+            }
+        }
+
+        // Deduct stock from each book
+        foreach ($cartItems as $item) {
+            $book = $item->book;
+            $book->stock_quantity -= $item->quantity;
+            $book->save();
+        }
+
+        // Update order status to completed
+        $cartOrder->update([
+            'status' => 'Pending',
+            'updated_at' => now()
+        ]);
+
+        return redirect()->route('dashboard')
+            ->with('success', 'Order placed successfully! Your order total is $' . number_format($cartOrder->total_amount, 2));
     }
 }

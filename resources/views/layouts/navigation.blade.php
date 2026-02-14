@@ -17,6 +17,11 @@
                         {{ __('Cart') }}
                     </x-nav-link>
 
+                    
+                    <x-nav-link href="{{route('orders.show') }}" :active="request()->routeIs('orders.show')">
+                        {{ __('Orders') }}
+                    </x-nav-link>
+
                     {{-- <x-nav-link :href="route('')" :active="request()->routeIs('')">
                         {{ __('Purchased books') }}
                     </x-nav-link>

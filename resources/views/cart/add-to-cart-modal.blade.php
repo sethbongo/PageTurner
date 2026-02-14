@@ -63,7 +63,7 @@
                         <input type="hidden" name="book_id" id="form-book-id" value="">
                         <input type="hidden" name="quantity" id="form-quantity" value="1">
                         <input type="submit" 
-                               class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition"
+                               class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition cursor-pointer"
                                value="Add to Cart">
                     </form>
                     <button id="close"

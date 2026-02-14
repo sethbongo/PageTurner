@@ -2,9 +2,9 @@
 
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Models\Book;
 
 Route::get('/', [BookController::class, 'get_books']);
 
@@ -22,9 +22,15 @@ Route::middleware('auth')->group(function () {
 
 
 Route::get('/cart', [CartController::class, 'cart_view'])->name('cart');
+Route::patch('/cart/update/{orderItem}', [CartController::class, 'update_quantity'])->name('cart.update');
+Route::delete('/cart/remove/{orderItem}', [CartController::class, 'remove_from_cart'])->name('cart.remove');
+Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
+
+Route::get('/orders', [OrderController::class, 'show_orders'])->name('orders.show');
+Route::patch('/orders/cancel/{order}', [OrderController::class, 'cancel'])->name('orders.cancel');
 
 
-Route::post('/add_to_cart', [Cartcontroller::class, 'add_to_cart' ])->name('add-to-cart');
+Route::post('/add_to_cart', [CartController::class, 'add_to_cart' ])->name('add-to-cart');
 
 Route::get('/book_details/{id}', [BookController::class, 'books_details'])->name('get_books_details');
 require __DIR__.'/auth.php';
