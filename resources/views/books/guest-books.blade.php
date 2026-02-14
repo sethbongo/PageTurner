@@ -22,38 +22,9 @@
                             <h1 class="text-3xl font-bold text-gray-800 mb-4">{{ $book->title }}</h1>
                             
                             <div class="space-y-4">
-                                <div>
-                                    <span class="text-gray-600 font-semibold">Author:</span>
-                                    <span class="text-gray-800 ml-2">{{ $book->author }}</span>
-                                </div>
+                            
+                                <x-book-details-shared :book="$book"/>
 
-                                <div>
-                                    <span class="text-gray-600 font-semibold">Category:</span>
-                                    <span class="inline-block ml-2 bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
-                                        {{ $book->category->name }}
-                                    </span>
-                                </div>
-
-                                <div>
-                                    <span class="text-gray-600 font-semibold">ISBN:</span>
-                                    <span class="text-gray-800 ml-2">{{ $book->isbn }}</span>
-                                </div>
-
-                                <div>
-                                    <span class="text-gray-600 font-semibold">Price:</span>
-                                    <span class="text-3xl font-bold text-green-600 ml-2">${{ number_format($book->price, 2) }}</span>
-                                </div>
-
-                                <div>
-                                    <span class="text-gray-600 font-semibold">Stock Available:</span>
-                                    @if($book->stock_quantity > 0)
-                                        <span class="ml-2 text-lg font-semibold {{ $book->stock_quantity < 10 ? 'text-orange-600' : 'text-green-600' }}">
-                                            {{ $book->stock_quantity }}
-                                        </span>
-                                    @else
-                                        <span class="ml-2 text-lg font-semibold text-red-600">Out of Stock</span>
-                                    @endif
-                                </div>
                                 
                                 <form action="{{ route('login')  }}" >
                                 <div class="pt-4">
@@ -66,19 +37,16 @@
                                 </form>
                             </div>
 
-                            <div class="mt-8">
-                                <h3 class="text-xl font-semibold text-gray-800 mb-3">Description</h3>
-                                <p class="text-gray-700 leading-relaxed">{{ $book->description }}</p>
-                            </div>
-
-                            <div class="mt-6">
-                                <a href="{{ route('dashboard') }}" class="text-blue-600 hover:text-blue-800 font-medium">
-                                    ← Back to Books
-                                </a>
-                            </div>
+                            <x-description-and-back :book="$book"/>
+                            
                         </div>
                     </div>
                 </div>
+            </div>
+            
+            <!-- Ratings and Reviews Section -->
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mt-6">
+                <x-ratings-review-section :book="$book"/>
             </div>
         </div>
     </div>

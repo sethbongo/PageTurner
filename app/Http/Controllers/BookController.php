@@ -8,18 +8,34 @@ use Illuminate\Http\Request;
 class BookController extends Controller
 {
     public function get_books(){
-        $books = Book::with('category')->get();
+        $books = Book::with('category', 'reviews')->get();
+        
+        $books->each(function($book) {
+            $book->averageRating = $book->reviews->avg('rating');
+            $book->reviewCount = $book->reviews->count();
+        });
+        
         return view('welcome', compact('books'));
     }
 
     public function logged_in_get_books(){
-        $books = Book::with('category')->get();
+        $books = Book::with('category', 'reviews')->get();
+        
+        $books->each(function($book) {
+            $book->averageRating = $book->reviews->avg('rating');
+            $book->reviewCount = $book->reviews->count();
+        });
+        
         return view('dashboard', compact('books'));
     }
 
 public function books_details($id)
 {
-    $book = Book::with('category', 'reviews')->findOrFail($id);
+    $book = Book::with('category', 'reviews.user')->findOrFail($id);
+    
+    $book->averageRating = $book->reviews->avg('rating');
+    $book->reviewCount = $book->reviews->count();
+    
     if (auth()->check()) {
         return view('books.auth-books', compact('book'));
     }

@@ -11,7 +11,6 @@
                         {{ __('Browse Books') }}
                     </x-nav-link>
                     
-                    {{-- <x-nav-link :href="" :active="request()->routeIs('')"> --}}
 
                     <x-nav-link href="{{route('cart') }}" :active="request()->routeIs('cart')">
                         {{ __('Cart') }}
@@ -22,10 +21,10 @@
                         {{ __('Orders') }}
                     </x-nav-link>
 
-                    {{-- <x-nav-link :href="route('')" :active="request()->routeIs('')">
+                    <x-nav-link href="{{ route('purchased-books.show') }}" :active="request()->routeIs('purchased-books.show')">
                         {{ __('Purchased books') }}
                     </x-nav-link>
-                     --}}
+                    
                 </div>
             </div>
 

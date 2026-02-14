@@ -1,7 +1,6 @@
 @props(['book'])
 
 <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-    <!-- Clickable Image -->
     <a href="{{ route('get_books_details', parameters: $book->id) }}">
         @if($book->cover_image)
             <img src="{{ asset($book->cover_image) }}" alt="{{ $book->title }}" class="w-full h-64 object-cover">
@@ -15,7 +14,6 @@
     </a>
     
     <div class="p-4">
-        <!-- Clickable Title -->
         <a href="{{ route('get_books_details', parameters: $book->id) }}" class="block hover:text-blue-600 transition-colors">
             <h3 class="text-lg font-bold text-gray-800 mb-2 line-clamp-2">{{ $book->title }}</h3>
         </a>
@@ -27,6 +25,24 @@
         <p class="text-sm text-gray-600 mb-3">
             <span class="font-medium">Category:</span> {{ $book->category->name }}
         </p>
+        
+        <!-- Book Rating -->
+        @if($book->reviewCount > 0)
+        <div class="mb-3 flex items-center">
+            <div class="flex items-center">
+                @for($i = 1; $i <= 5; $i++)
+                        <x-rating :userReview="$book->averageRating" :i="$i"/>
+                    @endfor
+            </div>
+            <span class="ml-2 text-xs text-gray-600">
+                {{ number_format($book->averageRating, 1) }} ({{ $book->reviewCount }})
+            </span>
+        </div>
+        @else
+        <div class="mb-3">
+            <span class="text-xs text-gray-500 italic">No reviews yet</span>
+        </div>
+        @endif
         
         <div class="flex justify-between items-center mb-3">
             <span class="text-2xl font-bold text-green-600">${{ number_format($book->price, 2) }}</span>

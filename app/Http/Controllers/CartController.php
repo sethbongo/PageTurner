@@ -130,7 +130,6 @@ public function add_to_cart(Request $request){
     {
         $orderItem = OrderItem::findOrFail($orderItemId);
         
-        // Check if this order item belongs to the authenticated user's cart
         $cartOrder = auth()->user()->orders()
             ->where('status', 'Cart')
             ->where('id', $orderItem->order_id)
@@ -142,7 +141,6 @@ public function add_to_cart(Request $request){
 
         $orderItem->delete();
 
-        // Recalculate cart total
         $cartTotal = OrderItem::where('order_id', $cartOrder->id)
             ->join('books', 'order_items.book_id', '=', 'books.id')
             ->sum(\DB::raw('order_items.quantity * books.price'));
@@ -154,7 +152,6 @@ public function add_to_cart(Request $request){
 
     public function checkout()
     {
-        // Get user's cart order
         $cartOrder = auth()->user()->orders()
             ->where('status', 'Cart')
             ->first();
@@ -163,14 +160,12 @@ public function add_to_cart(Request $request){
             return redirect()->route('cart')->withErrors(['error' => 'Your cart is empty.']);
         }
 
-        // Get all cart items with books
         $cartItems = $cartOrder->orderItems()->with('book')->get();
 
         if ($cartItems->isEmpty()) {
             return redirect()->route('cart')->withErrors(['error' => 'Your cart is empty.']);
         }
 
-        // Validate stock availability for all items
         foreach ($cartItems as $item) {
             if ($item->quantity > $item->book->stock_quantity) {
                 return redirect()->route('cart')
@@ -178,14 +173,12 @@ public function add_to_cart(Request $request){
             }
         }
 
-        // Deduct stock from each book
         foreach ($cartItems as $item) {
             $book = $item->book;
             $book->stock_quantity -= $item->quantity;
             $book->save();
         }
 
-        // Update order status to completed
         $cartOrder->update([
             'status' => 'Pending',
             'updated_at' => now()

@@ -4,6 +4,7 @@ use App\Http\Controllers\BookController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PurchasedBooksController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [BookController::class, 'get_books']);
@@ -29,6 +30,8 @@ Route::post('/cart/checkout', [CartController::class, 'checkout'])->name('cart.c
 Route::get('/orders', [OrderController::class, 'show_orders'])->name('orders.show');
 Route::patch('/orders/cancel/{order}', [OrderController::class, 'cancel'])->name('orders.cancel');
 
+Route::get('/purchased-books', [PurchasedBooksController::class, 'index'])->name('purchased-books.show');
+Route::post('/purchased-books/{book}/review', [PurchasedBooksController::class, 'storeReview'])->name('purchased-books.review');
 
 Route::post('/add_to_cart', [CartController::class, 'add_to_cart' ])->name('add-to-cart');
 

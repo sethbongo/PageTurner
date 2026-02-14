@@ -1,0 +1,77 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Review;
+use Illuminate\Http\Request;
+
+class PurchasedBooksController extends Controller
+{
+    public function index()
+    {
+        // Get all books from orders with 'Delivered' status using Eloquent relationships
+        $user = auth()->user();
+        
+        $purchasedBooks = collect();
+        
+        // Get all delivered orders for the user
+        $deliveredOrders = $user->orders()
+            ->where('status', 'Delivered')
+            ->with(['orderItems.book.category', 'orderItems.book.reviews'])
+            ->get();
+        
+        // Extract unique books from order items
+        foreach ($deliveredOrders as $order) {
+            foreach ($order->orderItems as $orderItem) {
+                $book = $orderItem->book;
+                // Check if book is not already in the collection
+                if (!$purchasedBooks->contains('id', $book->id)) {
+                    $purchasedBooks->push($book);
+                }
+            }
+        }
+        
+        return view('purchased_books.purchased_books', compact('purchasedBooks'));
+    }
+
+    public function storeReview(Request $request, $bookId)
+    {
+        $user = auth()->user();
+        
+        // Verify the user has purchased this book (has a delivered order with this book)
+        $hasPurchased = $user->orders()
+            ->where('status', 'Delivered')
+            ->whereHas('orderItems', function($query) use ($bookId) {
+                $query->where('book_id', $bookId);
+            })
+            ->exists();
+        
+        if (!$hasPurchased) {
+            return redirect()->back()->withErrors(['error' => 'You can only review books you have purchased.']);
+        }
+        
+        // Check if user has already reviewed this book
+        $existingReview = $user->reviews()
+            ->where('book_id', $bookId)
+            ->first();
+        
+        if ($existingReview) {
+            return redirect()->back()->withErrors(['error' => 'You have already reviewed this book.']);
+        }
+        
+        $validated = $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'required|string|max:1000',
+        ]);
+        
+        Review::create([
+            'user_id' => $user->id,
+            'book_id' => $bookId,
+            'rating' => $validated['rating'],
+            'comment' => $validated['comment'],
+        ]);
+        
+        return redirect()->route('purchased-books.index')
+            ->with('success', 'Your review has been submitted successfully!');
+    }
+}
