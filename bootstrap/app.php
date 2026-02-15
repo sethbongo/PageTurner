@@ -12,6 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectGuestsTo('/');
+        $middleware->alias([
+            'role_redirect'=> \App\Http\Middleware\RoleMiddleware::class,
+            'access_control'=> \App\Http\Middleware\AccessMiddleware::class
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
