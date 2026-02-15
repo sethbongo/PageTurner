@@ -9,7 +9,7 @@
 
                         <div>
                             @if($book->cover_image)
-                                <img src="{{ asset($book->cover_image) }}" alt="{{ $book->title }}" class="w-full h-auto rounded-lg shadow-lg">
+                                <img src="{{ asset('storage/' . $book->cover_image) }}" alt="{{ $book->title }}" class="w-full h-auto rounded-lg shadow-lg">
                             @else
                                 <div class="w-full aspect-[3/4] bg-gray-200 flex items-center justify-center rounded-lg shadow-lg">
                                     <svg class="w-32 h-32 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

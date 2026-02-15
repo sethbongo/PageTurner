@@ -1,5 +1,6 @@
 @extends('layouts.main-layout')
 
 @section('nav')
-        @include('layouts.navigation')
+            @include('layouts.admin-navigation')
+
 @endsection

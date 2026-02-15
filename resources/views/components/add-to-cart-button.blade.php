@@ -10,7 +10,7 @@
     data-book-author="{{ $book->author }}"
     data-book-description="{{ $book->description }}"
     data-book-price="{{ $book->price }}"
-    data-book-image="{{ $book->cover_image ?? '/images/no-cover.jpg' }}"
+    data-book-image="{{ $book->cover_image ? asset('storage/' . $book->cover_image) : '/images/no-cover.jpg' }}"
     data-book-stock="{{ $book->stock_quantity }}"
     type="button"
     {{ $book->stock_quantity == 0 ? 'disabled' : '' }}

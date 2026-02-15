@@ -8,7 +8,7 @@
 
 <div>
     <span class="text-gray-600 font-semibold">Category:</span>
-    <span class="inline-block ml-2 bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
+    <span class="text-gray-800 ml-2">
         {{ $book->category->name }}
     </span>
 </div>

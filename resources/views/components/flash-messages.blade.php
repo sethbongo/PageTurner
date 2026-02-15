@@ -21,5 +21,5 @@
         if (message) {
             message.style.display = 'none';
         }
-    }, 3000); 
+    }, 1000); 
 </script>

@@ -26,6 +26,12 @@ Route::middleware('auth')->group(function () {
 Route::middleware('access_control:admin')->group(function () {
  Route::get('/admin_home', [AdminController::class, 'admin_home'])
 ->name('admin_home');
+ Route::post('/admin/books', [AdminController::class, 'storeBook'])->name('admin.books.store');
+ Route::post('/admin/categories', [AdminController::class, 'storeCategory'])->name('admin.categories.store');
+
+  Route::get('/manage_books', [AdminController::class, 'manage_books'])->name('admin.manage_books');
+  Route::put('/admin/books/{book}', [AdminController::class, 'updateBook'])->name('admin.books.update');
+  Route::delete('/admin/books/{book}', [AdminController::class, 'deleteBook'])->name('admin.books.delete');
 });
 
 

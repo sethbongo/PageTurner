@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-admin-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ $book->title }}
@@ -28,13 +28,23 @@
                                 <x-book-details-shared :book="$book"/>
 
                                 <div class="pt-4">
-                                            <x-add-to-cart-button :book="$book"/>
-                                            @include('cart.add-to-cart-modal')
+
+                                            <x-delete-and-edit :book="$book" :books="$books"/>
+                                            @include('admin.edit-book-modal')
+                                            
                                 </div>
                             </div>
 
-                            <x-description-and-back :book="$book"/>
+                            <div class="mt-8">
+                                    <h3 class="text-xl font-semibold text-gray-800 mb-3">Description</h3>
+                                    <p class="text-gray-700 leading-relaxed">{{ $book->description }}</p>
+                                </div>
 
+                                <div class="mt-6">
+                                    <a href="{{ route('admin.manage_books') }}" class="text-blue-600 hover:text-blue-800 font-medium">
+                                        ← Back to Books
+                                    </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -46,5 +56,5 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+</x-admin-layout>
 

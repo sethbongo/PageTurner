@@ -3,7 +3,7 @@
 
     <a href="{{ route('get_books_details', parameters: $book->id) }}">
         @if($book->cover_image)
-            <img src="{{ asset($book->cover_image) }}" alt="{{ $book->title }}" class="w-full h-64 object-cover">
+            <img src="{{ asset('storage/' . $book->cover_image) }}" alt="{{ $book->title }}" class="w-full h-64 object-cover">
         @else
             <div class="w-full h-64 bg-gray-200 flex items-center justify-center">
                 <svg class="w-20 h-20 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

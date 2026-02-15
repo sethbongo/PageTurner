@@ -2,11 +2,102 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Book;
+use App\Models\Category;
+use App\Models\Order;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
     public function admin_home(){
-        return view('admin.admin-page');
+        $totalBooks = Book::count();
+        $totalCategories = Category::count();
+        $totalOrders = Order::count();
+        $totalUsers = User::where('role', 'customer')->count();
+        $categories = Category::all();
+        
+        return view('admin.admin-home', compact('totalBooks', 'totalCategories', 'totalOrders', 'totalUsers', 'categories'));
+    }
+
+    public function storeBook(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'author' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'isbn' => 'required|string|max:20|unique:books,isbn',
+            'price' => 'required|numeric|min:0',
+            'stock_quantity' => 'required|integer|min:0',
+            'description' => 'nullable|string',
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        if ($request->hasFile('cover_image')) {
+            $imagePath = Storage::disk('public')->putFile('book_covers', $request->file('cover_image'));
+            $validated['cover_image'] = $imagePath;
+        }
+
+        Book::create($validated);
+
+        return redirect()->route('admin_home')->with('success', 'Book added successfully!');
+    }
+
+    public function storeCategory(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:categories,name',
+            'description' => 'nullable|string',
+        ]);
+
+        Category::create($validated);
+
+        return redirect()->route('admin_home')->with('success', 'Category added successfully!');
+    }
+
+    public function manage_books(){
+        $books = Book::with('category')->latest()->get();
+        $categories = Category::all();
+        return view('admin.manage-books', compact('books', 'categories'));
+    }
+
+    public function updateBook(Request $request, Book $book)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'author' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'isbn' => 'required|string|max:20|unique:books,isbn,' . $book->id,
+            'price' => 'required|numeric|min:0',
+            'stock_quantity' => 'required|integer|min:0',
+            'description' => 'nullable|string',
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        if ($request->hasFile('cover_image')) {
+            // Delete old cover image if exists
+            if ($book->cover_image) {
+                Storage::disk('public')->delete($book->cover_image);
+            }
+            $imagePath = Storage::disk('public')->putFile('book_covers', $request->file('cover_image'));
+            $validated['cover_image'] = $imagePath;
+        }
+
+        $book->update($validated);
+
+        return redirect()->route('admin.manage_books')->with('success', 'Book updated successfully!');
+    }
+
+    public function deleteBook(Book $book)
+    {
+        // Delete cover image if exists
+        if ($book->cover_image) {
+            Storage::disk('public')->delete($book->cover_image);
+        }
+
+        $book->delete();
+
+        return redirect()->route('admin.manage_books')->with('success', 'Book deleted successfully!');
     }
 }
