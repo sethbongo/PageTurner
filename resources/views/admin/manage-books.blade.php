@@ -42,8 +42,8 @@
         </div>
     </div>
 
-    <!-- Include Edit Book Modal -->
-    @include('admin.edit-book-modal')
+    <!-- Include Book Modal (Add/Edit) -->
+    @include('admin.add-book-modal')
 
 
 </x-admin-layout>

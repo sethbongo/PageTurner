@@ -30,7 +30,7 @@
                                 <div class="pt-4">
 
                                             <x-delete-and-edit :book="$book" :books="$books"/>
-                                            @include('admin.edit-book-modal')
+                                            @include('admin.add-book-modal')
                                             
                                 </div>
                             </div>

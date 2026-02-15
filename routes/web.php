@@ -32,6 +32,14 @@ Route::middleware('access_control:admin')->group(function () {
   Route::get('/manage_books', [AdminController::class, 'manage_books'])->name('admin.manage_books');
   Route::put('/admin/books/{book}', [AdminController::class, 'updateBook'])->name('admin.books.update');
   Route::delete('/admin/books/{book}', [AdminController::class, 'deleteBook'])->name('admin.books.delete');
+
+  Route::get('/manage_categories', [AdminController::class, 'manage_categories'])->name('admin.manage_categories');
+  Route::put('/admin/categories/{category}', [AdminController::class, 'updateCategory'])->name('admin.categories.update');
+  Route::delete('/admin/categories/{category}', [AdminController::class, 'deleteCategory'])->name('admin.categories.delete');
+
+
+    Route::get('/customer_orders', [AdminController::class, 'customer_orders'])->name('admin.customer_orders');
+
 });
 
 
@@ -56,5 +64,6 @@ Route::post('/add_to_cart', [CartController::class, 'add_to_cart' ])->name('add-
 
 
 Route::get('/book_details/{id}', [BookController::class, 'books_details'])->name('get_books_details');
+
 require __DIR__.'/auth.php';
 

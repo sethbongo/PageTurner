@@ -100,4 +100,38 @@ class AdminController extends Controller
 
         return redirect()->route('admin.manage_books')->with('success', 'Book deleted successfully!');
     }
+
+    public function manage_categories(){
+        $categories = Category::withCount('books')->latest()->get();
+        return view('admin.manage-categories', compact('categories'));
+    }
+
+    public function updateCategory(Request $request, Category $category)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
+            'description' => 'nullable|string',
+        ]);
+
+        $category->update($validated);
+
+        return redirect()->route('admin.manage_categories')->with('success', 'Category updated successfully!');
+    }
+
+    public function deleteCategory(Category $category)
+    {
+        // Check if category has books
+        if ($category->books()->count() > 0) {
+            return redirect()->route('admin.manage_categories')->with('error', 'Cannot delete category with existing books!');
+        }
+
+        $category->delete();
+
+        return redirect()->route('admin.manage_categories')->with('success', 'Category deleted successfully!');
+    }
+
+    public function customer_orders(){
+
+    
+    }
 }

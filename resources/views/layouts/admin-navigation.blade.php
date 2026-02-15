@@ -11,11 +11,11 @@
         {{ __('Manage Books') }}
     </x-nav-link>
 
-    <x-nav-link href="#" :active="false">
+    <x-nav-link href="{{ route('admin.manage_categories') }}" :active="request()->routeIs('admin.manage_categories')">
         {{ __('Manage Categories') }}
     </x-nav-link>
 
-    <x-nav-link href="#" :active="false">
+    <x-nav-link href="{{ route('admin.customer_orders') }}" :active="request()->routeIs('admin.customer_orders')">
         {{ __('Customer Orders') }}
     </x-nav-link>
 </div>

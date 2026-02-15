@@ -20,35 +20,3 @@
             </button>
         </form>
     </div>
-
-
-
-<script>
-    function openEditBookModal(bookId) {
-        const books = @json($books);
-        const book = books.find(b => b.id === bookId);
-        
-        if (book) {
-            // Populate form fields
-            document.getElementById('edit_book_id').value = book.id;
-            document.getElementById('edit_title').value = book.title;
-            document.getElementById('edit_author').value = book.author;
-            document.getElementById('edit_category_id').value = book.category_id;
-            document.getElementById('edit_isbn').value = book.isbn;
-            document.getElementById('edit_price').value = book.price;
-            document.getElementById('edit_stock_quantity').value = book.stock_quantity;
-            document.getElementById('edit_description').value = book.description || '';
-            
-            // Update form action
-            const form = document.getElementById('editBookForm');
-            form.action = `/admin/books/${bookId}`;
-            
-            // Show modal
-            document.getElementById('editBookModal').classList.remove('hidden');
-        }
-    }
-
-    function closeEditBookModal() {
-        document.getElementById('editBookModal').classList.add('hidden');
-    }
-</script>
