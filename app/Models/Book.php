@@ -20,6 +20,18 @@ class Book extends Model
         'cover_image',
     ];
 
+    protected $appends = ['reviewCount', 'averageRating'];
+
+    public function getReviewCountAttribute()
+    {
+        return $this->reviews()->count();
+    }
+
+    public function getAverageRatingAttribute()
+    {
+        return $this->reviews()->avg('rating') ?? 0;
+    }
+
   
     public function category()
     {
@@ -31,6 +43,10 @@ class Book extends Model
         return $this->hasMany(Review::class);
     }
 
+    public function userReview()
+    {
+        return $this->hasOne(Review::class)->where('user_id', auth()->id());
+    }
 
     public function orderItems()
     {
