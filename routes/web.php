@@ -38,7 +38,8 @@ Route::middleware('access_control:admin')->group(function () {
   Route::delete('/admin/categories/{category}', [AdminController::class, 'deleteCategory'])->name('admin.categories.delete');
 
 
-    Route::get('/customer_orders', [AdminController::class, 'customer_orders'])->name('admin.customer_orders');
+Route::get('/customer_orders', [AdminController::class, 'customer_orders'])->name('admin.customer_orders');
+Route::patch('/admin/orders/{order}', [AdminController::class, 'updateOrderStatus'])->name('admin.orders.update');
 
 });
 

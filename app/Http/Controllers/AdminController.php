@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use function PHPUnit\Framework\returnArgument;
 
 class AdminController extends Controller
 {
@@ -131,7 +132,21 @@ class AdminController extends Controller
     }
 
     public function customer_orders(){
+        $orders = Order::with(['user', 'orderItems.book'])
+            ->latest()
+            ->get();
+            
+        return view('admin.customer-order', compact('orders'));
+    }
 
-    
+    public function updateOrderStatus(Request $request, Order $order)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:Pending,Processing,Delivered,Cancelled,Failed,Shipped,Cart'
+        ]);
+
+        $order->update($validated);
+
+        return redirect()->route('admin.customer_orders')->with('success', 'Order status updated successfully!');
     }
 }
