@@ -70,28 +70,23 @@
         document.body.style.overflow = 'hidden';
     }
 
-    function openEditCategoryModal(categoryId) {
-        const categories = @json($categories ?? []);
-        const category = categories.find(c => c.id === categoryId);
+    function openEditCategoryModal(categoryId, name, description) {
+        // Populate form
+        document.getElementById('category_id').value = categoryId;
+        document.getElementById('category_name').value = name;
+        document.getElementById('category_description').value = description || '';
         
-        if (category) {
-            // Populate form
-            document.getElementById('category_id').value = category.id;
-            document.getElementById('category_name').value = category.name;
-            document.getElementById('category_description').value = category.description || '';
-            
-            // Update form action and method
-            document.getElementById('categoryForm').action = `/admin/categories/${categoryId}`;
-            document.getElementById('categoryMethodField').value = 'PUT';
-            
-            // Update UI
-            document.getElementById('categoryModalTitle').textContent = 'Edit Category';
-            document.getElementById('categorySubmitBtn').textContent = 'Update Category';
-            
-            // Show modal
-            document.getElementById('categoryModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
+        // Update form action and method
+        document.getElementById('categoryForm').action = `/admin/categories/${categoryId}`;
+        document.getElementById('categoryMethodField').value = 'PUT';
+        
+        // Update UI
+        document.getElementById('categoryModalTitle').textContent = 'Edit Category';
+        document.getElementById('categorySubmitBtn').textContent = 'Update Category';
+        
+        // Show modal
+        document.getElementById('categoryModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
     }
 
     function closeCategoryModal() {

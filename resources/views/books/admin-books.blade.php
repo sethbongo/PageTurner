@@ -29,7 +29,7 @@
 
                                 <div class="pt-4">
 
-                                            <x-delete-and-edit :book="$book" :books="$books"/>
+                                            <x-delete-and-edit :book="$book"/>
                                             @include('admin.add-book-modal')
                                             
                                 </div>

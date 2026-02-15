@@ -121,7 +121,6 @@ class AdminController extends Controller
 
     public function deleteCategory(Category $category)
     {
-        // Check if category has books
         if ($category->books()->count() > 0) {
             return redirect()->route('admin.manage_categories')->with('error', 'Cannot delete category with existing books!');
         }

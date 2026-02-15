@@ -143,34 +143,29 @@
         document.body.style.overflow = 'hidden';
     }
 
-    function openEditBookModal(bookId) {
-        const books = @json($books ?? []);
-        const book = books.find(b => b.id === bookId);
+    function openEditBookModal(bookId, title, author, categoryId, isbn, price, stockQuantity, description) {
+        // Populate form fields
+        document.getElementById('book_id').value = bookId;
+        document.getElementById('book_title').value = title;
+        document.getElementById('book_author').value = author;
+        document.getElementById('book_category_id').value = categoryId;
+        document.getElementById('book_isbn').value = isbn;
+        document.getElementById('book_price').value = price;
+        document.getElementById('book_stock_quantity').value = stockQuantity;
+        document.getElementById('book_description').value = description || '';
         
-        if (book) {
-            // Populate form fields
-            document.getElementById('book_id').value = book.id;
-            document.getElementById('book_title').value = book.title;
-            document.getElementById('book_author').value = book.author;
-            document.getElementById('book_category_id').value = book.category_id;
-            document.getElementById('book_isbn').value = book.isbn;
-            document.getElementById('book_price').value = book.price;
-            document.getElementById('book_stock_quantity').value = book.stock_quantity;
-            document.getElementById('book_description').value = book.description || '';
-            
-            // Update form action and method
-            document.getElementById('bookForm').action = `/admin/books/${bookId}`;
-            document.getElementById('bookMethodField').value = 'PUT';
-            
-            // Update UI
-            document.getElementById('bookModalTitle').textContent = 'Edit Book';
-            document.getElementById('bookSubmitBtn').textContent = 'Update Book';
-            document.getElementById('imageHelpText').classList.remove('hidden');
-            
-            // Show modal
-            document.getElementById('bookModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
+        // Update form action and method
+        document.getElementById('bookForm').action = `/admin/books/${bookId}`;
+        document.getElementById('bookMethodField').value = 'PUT';
+        
+        // Update UI
+        document.getElementById('bookModalTitle').textContent = 'Edit Book';
+        document.getElementById('bookSubmitBtn').textContent = 'Update Book';
+        document.getElementById('imageHelpText').classList.remove('hidden');
+        
+        // Show modal
+        document.getElementById('bookModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
     }
 
     function closeBookModal() {

@@ -31,7 +31,7 @@
                                         {{ $book->stock_quantity }} units
                                     </span>
                                 </p>
-                                    <x-delete-and-edit :book="$book" :books="$books"/>
+                                    <x-delete-and-edit :book="$book"/>
                             </div>
                         </div>
                     @endforeach

@@ -1,9 +1,9 @@
-  @props(['book', 'books'])
+  @props(['book'])
   
   <!-- Action Buttons -->
     <div class="flex gap-2">
         <!-- Edit Button -->
-        <button onclick="openEditBookModal({{ $book->id }})" 
+        <button onclick="openEditBookModal({{ $book->id }}, '{{ addslashes($book->title) }}', '{{ addslashes($book->author) }}', {{ $book->category_id }}, '{{ $book->isbn }}', {{ $book->price }}, {{ $book->stock_quantity }}, '{{ addslashes($book->description ?? '') }}')" 
                 class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition-colors duration-200">
             Edit
         </button>

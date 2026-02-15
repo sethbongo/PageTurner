@@ -48,7 +48,7 @@
                                 <!-- Action Buttons -->
                                 <div class="flex gap-2">
                                     <!-- Edit Button -->
-                                    <button onclick="openEditCategoryModal({{ $category->id }})" 
+                                    <button onclick="openEditCategoryModal({{ $category->id }}, '{{ addslashes($category->name) }}', '{{ addslashes($category->description ?? '') }}')" 
                                             class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition-colors duration-200">
                                         Edit
                                     </button>
