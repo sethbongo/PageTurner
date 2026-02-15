@@ -4,18 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use App\Models\Category;
-use Illuminate\Http\Request;
 
 class BookController extends Controller
 {
     public function get_books(){
-        $books = Book::with('category', 'reviews')->get();
+        $books = Book::with('category', 'reviews')->latest()->paginate(12);
         
         return view('welcome', compact('books'));
     }
 
     public function logged_in_get_books(){
-        $books = Book::with('category', 'reviews')->get();
+        $books = Book::with('category', 'reviews')->latest()->paginate(12);
         
         return view('dashboard', compact('books'));
     }

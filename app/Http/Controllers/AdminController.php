@@ -8,7 +8,6 @@ use App\Models\Order;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use function PHPUnit\Framework\returnArgument;
 
 class AdminController extends Controller
 {
@@ -58,7 +57,7 @@ class AdminController extends Controller
     }
 
     public function manage_books(){
-        $books = Book::with('category')->latest()->get();
+        $books = Book::with('category')->latest()->paginate(12);
         $categories = Category::all();
         return view('admin.manage-books', compact('books', 'categories'));
     }
@@ -103,7 +102,7 @@ class AdminController extends Controller
     }
 
     public function manage_categories(){
-        $categories = Category::withCount('books')->latest()->get();
+        $categories = Category::withCount('books')->latest()->paginate(12);
         return view('admin.manage-categories', compact('categories'));
     }
 
@@ -133,7 +132,7 @@ class AdminController extends Controller
     public function customer_orders(){
         $orders = Order::with(['user', 'orderItems.book'])
             ->latest()
-            ->get();
+            ->paginate(15);
             
         return view('admin.customer-order', compact('orders'));
     }

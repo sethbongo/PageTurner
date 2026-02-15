@@ -7,6 +7,8 @@
     
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <x-flash-messages/>
+            
             @if(isset($books) && $books->count() > 0)
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 
@@ -14,6 +16,12 @@
                         <x-book-card :book="$book" />
                     @endforeach
                 </div>
+
+                <!-- Pagination Links -->
+                <div class="mt-6">
+                    {{ $books->links() }}
+                </div>
+
                 @include('cart.add-to-cart-modal')
 
             @else

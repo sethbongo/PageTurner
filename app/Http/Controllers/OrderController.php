@@ -11,8 +11,8 @@ class OrderController extends Controller
         $orders = auth()->user()->orders()
             ->whereNot('status', 'Cart')
             ->with(['orderItems.book'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->latest()
+            ->paginate(10);
 
         return view('orders.orders', compact('orders'));
     }

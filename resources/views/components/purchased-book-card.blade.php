@@ -11,7 +11,7 @@
         <!-- Review Section -->
         @if($book->userReview)
             <!-- User has already reviewed -->
-            <div class="bg-green-50 border border-green-600 rounded-lg p-3">
+            <div class="bg-blue-50 border border-blue-600 rounded-lg p-3">
                 <div class="flex items-center mb-2">
                     <span class="text-sm font-semibold">Your Review</span>
                     <div class="ml-auto flex items-center">
@@ -34,7 +34,6 @@
     </div>
 </div>
 
-<!-- Review Modal -->
 @if(!$book->userReview)
 <div id="reviewModal{{ $book->id }}" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
     <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">

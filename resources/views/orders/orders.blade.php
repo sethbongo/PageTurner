@@ -70,6 +70,11 @@
                     </div>
                 @endforeach
             </div>
+
+            <!-- Pagination Links -->
+            <div class="mt-6">
+                {{ $orders->links() }}
+            </div>
         @else
             <div class="text-center py-12 bg-white shadow-md rounded-lg">
                 <svg class="mx-auto h-24 w-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

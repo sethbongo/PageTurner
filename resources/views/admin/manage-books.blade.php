@@ -37,6 +37,10 @@
                     @endforeach
                 </div>
 
+                <!-- Pagination Links -->
+                <div class="mt-6">
+                    {{ $books->links() }}
+                </div>
 
             @endif
         </div>
