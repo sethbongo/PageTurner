@@ -9,6 +9,7 @@ use App\Http\Controllers\PurchasedBooksController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [BookController::class, 'get_books'])->name('guest_books');
+Route::get('/search', [BookController::class, 'search'])->name('books.search');
 
 
 Route::get('/dashboard', [BookController::class, 'logged_in_get_books'])

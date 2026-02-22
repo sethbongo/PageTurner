@@ -1,9 +1,12 @@
               <header class="bg-white shadow">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between gap-4">
                             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                                 Available Books
                             </h2>
+                            
+                            <x-search-bar />
+                            
                             @if (Route::has('login'))
                                 <nav class="flex items-center gap-4">
                                     @auth
