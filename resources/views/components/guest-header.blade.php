@@ -7,33 +7,19 @@
                             
                             <x-search-bar />
                             
-                            @if (Route::has('login'))
                                 <nav class="flex items-center gap-4">
-                                    @auth
-                                        <a
-                                            href="{{ url('/dashboard') }}"
-                                            class="inline-block px-5 py-1.5 border border-gray-300 text-gray-700 rounded-sm text-sm hover:border-gray-400"
-                                        >
-                                            Dashboard
-                                        </a>
-                                    @else
                                         <a
                                             href="{{ route('login') }}"
                                             class="inline-block px-5 py-1.5 text-gray-700 border border-transparent hover:border-gray-300 rounded-sm text-sm"
                                         >
                                             Log in
                                         </a>
-
-                                        @if (Route::has('register'))
                                             <a
                                                 href="{{ route('register') }}"
                                                 class="inline-block px-5 py-1.5 border border-gray-300 text-gray-700 rounded-sm text-sm hover:border-gray-400">
                                                 Register
                                             </a>
-                                        @endif
-                                    @endauth
                                 </nav>
-                            @endif
                         </div>
                     </div>
                 </header>
