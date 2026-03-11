@@ -144,7 +144,6 @@ function hideModal() {
     modalContainer.classList.add('opacity-0', 'pointer-events-none');
     modalContainer.classList.remove('opacity-100');
     
-    // Reset quantity to 1 when closing
     quantityInput.value = 1;
     formQuantityInput.value = 1;
     updateTotalPrice();

@@ -57,7 +57,7 @@ class AdminController extends Controller
     }
 
     public function manage_books(){
-        $books = Book::with('category')->latest()->paginate(12);
+        $books = Book::with('category')->latest('updated_at')->paginate(12);
         $categories = Category::all();
         return view('admin.manage-books', compact('books', 'categories'));
     }
@@ -76,7 +76,7 @@ class AdminController extends Controller
         ]);
 
         if ($request->hasFile('cover_image')) {
-            // Delete old cover image if exists
+            // delete old cover image if exists
             if ($book->cover_image) {
                 Storage::disk('public')->delete($book->cover_image);
             }
@@ -91,7 +91,6 @@ class AdminController extends Controller
 
     public function deleteBook(Book $book)
     {
-        // Delete cover image if exists
         if ($book->cover_image) {
             Storage::disk('public')->delete($book->cover_image);
         }

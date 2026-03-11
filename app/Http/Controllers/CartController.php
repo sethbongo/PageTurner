@@ -55,22 +55,28 @@ public function add_to_cart(Request $request){
             'total_amount' => 0.00
         ]);
 
+        # checks if the book is already in the cart.
+
         $existingCartItem = OrderItem::where([
             'order_id' => $cartOrder->id,
             'book_id' => $book->id
         ])->first();
 
         if ($existingCartItem) {
+            # if it is, add the existing quantity to new quantity
+
             $newQuantity = $existingCartItem->quantity + $requestedQuantity;
             
             if ($newQuantity > $book->stock_quantity) {
                 return redirect()->back()->withErrors(['quantity' => 'Adding this quantity would exceed available stock.']);
             }
             
+            #update
             $existingCartItem->update([
                 'quantity' => $newQuantity
             ]);
         } else {
+            #if not, create new order item
             OrderItem::create([
                 'order_id' => $cartOrder->id,
                 'book_id' => $book->id,
@@ -98,6 +104,8 @@ public function add_to_cart(Request $request){
 
         $orderItem = OrderItem::with('book')->findOrFail($orderItemId);
         
+
+        #checks if the user own the order it tries to edit
         $cartOrder = auth()->user()->orders()
             ->where('status', 'Cart')
             ->where('id', $orderItem->order_id)
@@ -130,6 +138,7 @@ public function add_to_cart(Request $request){
     {
         $orderItem = OrderItem::findOrFail($orderItemId);
         
+        #same checker. 
         $cartOrder = auth()->user()->orders()
             ->where('status', 'Cart')
             ->where('id', $orderItem->order_id)
@@ -150,7 +159,9 @@ public function add_to_cart(Request $request){
         return redirect()->route('cart')->with('success', 'Item removed from cart.');
     }
 
+    #checkouts the order. change the status to pending.
     public function checkout()
+    
     {
         $cartOrder = auth()->user()->orders()
             ->where('status', 'Cart')

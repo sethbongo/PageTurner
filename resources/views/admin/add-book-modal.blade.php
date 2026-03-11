@@ -103,6 +103,7 @@
                     <label for="book_cover_image" class="block text-sm font-medium text-gray-700">Cover Image</label>
                     <input type="file" name="cover_image" id="book_cover_image" accept="image/*"
                            class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-black hover:file:bg-blue-100">
+                    <p id="currentImageName" class="mt-1 text-xs text-gray-600 hidden"></p>
                     <p id="imageHelpText" class="mt-1 text-xs text-gray-500 hidden">Leave empty to keep current image</p>
                     @error('cover_image')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -137,13 +138,14 @@
         document.getElementById('bookModalTitle').textContent = 'Add New Book';
         document.getElementById('bookSubmitBtn').textContent = 'Add Book';
         document.getElementById('imageHelpText').classList.add('hidden');
+        document.getElementById('currentImageName').classList.add('hidden');
         
         // Show modal
         document.getElementById('bookModal').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     }
 
-    function openEditBookModal(bookId, title, author, categoryId, isbn, price, stockQuantity, description) {
+    function openEditBookModal(bookId, title, author, categoryId, isbn, price, stockQuantity, description, coverImage) {
         // Populate form fields
         document.getElementById('book_id').value = bookId;
         document.getElementById('book_title').value = title;
@@ -162,6 +164,15 @@
         document.getElementById('bookModalTitle').textContent = 'Edit Book';
         document.getElementById('bookSubmitBtn').textContent = 'Update Book';
         document.getElementById('imageHelpText').classList.remove('hidden');
+        
+        // Display current image filename
+        const currentImageName = document.getElementById('currentImageName');
+        if (coverImage) {
+            currentImageName.textContent = 'Current image: ' + coverImage;
+            currentImageName.classList.remove('hidden');
+        } else {
+            currentImageName.classList.add('hidden');
+        }
         
         // Show modal
         document.getElementById('bookModal').classList.remove('hidden');

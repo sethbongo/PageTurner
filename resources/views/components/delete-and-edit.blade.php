@@ -1,14 +1,11 @@
   @props(['book'])
   
-  <!-- Action Buttons -->
     <div class="flex gap-2">
-        <!-- Edit Button -->
-        <button onclick="openEditBookModal({{ $book->id }}, '{{ addslashes($book->title) }}', '{{ addslashes($book->author) }}', {{ $book->category_id }}, '{{ $book->isbn }}', {{ $book->price }}, {{ $book->stock_quantity }}, '{{ addslashes($book->description ?? '') }}')" 
+        <button onclick="openEditBookModal({{ $book->id }}, '{{ addslashes($book->title) }}', '{{ addslashes($book->author) }}', {{ $book->category_id }}, '{{ $book->isbn }}', {{ $book->price }}, {{ $book->stock_quantity }}, '{{ addslashes($book->description ?? '') }}', '{{ $book->cover_image ?? '' }}')" 
                 class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition-colors duration-200">
             Edit
         </button>
         
-        <!-- Delete Button -->
         <form action="{{ route('admin.books.delete', $book) }}" method="POST" 
                 onsubmit="return confirm('Are you sure you want to delete this book? This action cannot be undone.');" 
                 class="flex-1">

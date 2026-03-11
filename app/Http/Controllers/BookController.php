@@ -8,13 +8,13 @@ use App\Models\Category;
 class BookController extends Controller
 {
     public function get_books(){
-        $books = Book::with('category', 'reviews')->latest()->paginate(12);
+        $books = Book::with('category', 'reviews')->latest('updated_at')->paginate(12);
         
         return view('welcome', compact('books'));
     }
 
     public function logged_in_get_books(){
-        $books = Book::with('category', 'reviews')->latest()->paginate(12);
+        $books = Book::with('category', 'reviews')->latest('updated_at')->paginate(12);
         
         return view('dashboard', compact('books'));
     }
@@ -36,13 +36,14 @@ class BookController extends Controller
                       $subq->whereRaw('LOWER(name) LIKE ?', ["%{$searchTerm}%"]);
                   });
             })
-            ->latest()
+            ->latest('updated_at')
             ->paginate(12)
             ->appends(['query' => $query]);
         
         if (auth()->check()) {
             if (auth()->user()->role === 'admin') {
-                return view('admin.admin_home', compact('books', 'query'));
+                $categories = Category::all();
+                return view('admin.manage-books', compact('books', 'categories', 'query'));
             }
             return view('dashboard', compact('books', 'query'));
         }
@@ -58,7 +59,7 @@ public function books_details($id)
         // Check if user is admin
         if (auth()->user()->role === 'admin') {
             $categories = Category::all();
-            $books = Book::all();
+            $books = Book::latest('updated_at')->get();
             return view('books.admin-books', compact('book', 'categories', 'books'));
         }
         return view('books.auth-books', compact('book'));

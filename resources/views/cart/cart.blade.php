@@ -14,7 +14,7 @@
                     <div class="space-y-4">
                         @foreach($order_items as $item)
                             <div class="flex items-center border-b pb-4">
-                                <img src="{{ $item->book->image }}" alt="{{ $item->book->title }}" class="w-16 h-24 object-cover mr-4">
+                                <img src="{{ $item->book->cover_image ? asset('storage/' . $item->book->cover_image) : '/images/no-cover.jpg' }}" alt="{{ $item->book->title }}" class="w-16 h-24 object-cover mr-4">
                                 <div class="flex-1">
                                     <h3 class="text-lg font-semibold">{{ $item->book->title }}</h3>
                                     <p class="text-gray-600">by {{ $item->book->author }}</p>

@@ -35,7 +35,7 @@
                                 </div>
                             </div>
                             
-                            @if(in_array($order->status, ['Pending', 'Processing']))
+                            @if($order->status === 'Pending')
                                 <form action="{{ route('orders.cancel', $order->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this order? Stock will be restored.')">
                                     @csrf
                                     @method('PATCH')
@@ -52,7 +52,7 @@
                                 @foreach($order->orderItems as $item)
                                     <div class="flex items-center justify-between border-b pb-3">
                                         <div class="flex items-center space-x-4">
-                                            <img src="{{ $item->book->image }}" alt="{{ $item->book->title }}" class="w-12 h-16 object-cover rounded">
+                                            <img src="{{ $item->book->cover_image ? asset('storage/' . $item->book->cover_image) : '/images/no-cover.jpg' }}" alt="{{ $item->book->title }}" class="w-12 h-16 object-cover rounded">
                                             <div>
                                                 <h4 class="font-semibold text-gray-900">{{ $item->book->title }}</h4>
                                                 <p class="text-sm text-gray-600">by {{ $item->book->author }}</p>
@@ -71,7 +71,6 @@
                 @endforeach
             </div>
 
-            <!-- Pagination Links -->
             <div class="mt-6">
                 {{ $orders->links() }}
             </div>

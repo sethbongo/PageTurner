@@ -1,7 +1,11 @@
 <x-admin-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Manage Books') }}
+            @if(isset($query) && $query)
+                {{ __('Search Results for: ') . $query }}
+            @else
+                {{ __('Manage Books') }}
+            @endif
         </h2>
     </x-slot>
     
@@ -10,11 +14,24 @@
             <!-- Success Message -->
             <x-flash-messages/>
 
+            @if(isset($query) && $query)
+                <div class="mb-6 flex items-center gap-3">
+                    <a href="{{ route('admin.manage_books') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                        ← Back to All Books
+                    </a>
+                    <p class="text-gray-600">Found {{ $books->total() }} result(s)</p>
+                </div>
+            @endif
+
             <!-- Books Grid -->
             @if($books->isEmpty())
                 <div class="bg-white overflow-hidden shadow-sm rounded-lg">
                     <div class="p-6 text-center">
-                        <p class="text-gray-500">No books found. Add your first book from the dashboard.</p>
+                        @if(isset($query) && $query)
+                            <p class="text-gray-500">No books found matching "{{ $query }}".</p>
+                        @else
+                            <p class="text-gray-500">No books found. Add your first book from the dashboard.</p>
+                        @endif
                     </div>
                 </div>
             @else

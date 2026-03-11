@@ -1,16 +1,13 @@
 @props(['book'])
 
 <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-    <!-- Book Image -->
    <x-shared-book-card :book="$book"/>
    
         <div class="mb-4">
             <span class="text-2xl font-bold text-green-600">${{ number_format($book->price, 2) }}</span>
         </div>
     
-        <!-- Review Section -->
         @if($book->userReview)
-            <!-- User has already reviewed -->
             <div class="bg-blue-50 border border-blue-600 rounded-lg p-3">
                 <div class="flex items-center mb-2">
                     <span class="text-sm font-semibold">Your Review</span>
@@ -23,7 +20,6 @@
                 <p class="text-sm text-gray-700">{{ $book->userReview->comment }}</p>
             </div>
         @else
-            <!-- Show review button -->
             <button 
                 onclick="openReviewModal{{ $book->id }}()" 
                 class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
@@ -49,7 +45,6 @@
         <form action="{{ route('purchased-books.review', $book->id) }}" method="POST">
             @csrf
             
-            <!-- Rating -->
             <div class="mb-4">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Rating</label>
                 <div class="flex space-x-2">
@@ -67,7 +62,6 @@
                 @enderror
             </div>
             
-            <!-- Comment -->
             <div class="mb-4">
                 <label for="comment{{ $book->id }}" class="block text-sm font-medium text-gray-700 mb-2">Your Review</label>
                 <textarea 
@@ -84,7 +78,6 @@
                 @enderror
             </div>
             
-            <!-- Buttons -->
             <div class="flex space-x-3">
                 <button 
                     type="button" 
