@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CustomerDashboardController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchasedBooksController;
@@ -15,6 +16,10 @@ Route::get('/search', [BookController::class, 'search'])->name('books.search');
 Route::get('/dashboard', [BookController::class, 'logged_in_get_books'])
 ->middleware(['auth', 'verified', 'role_redirect:customer'])
 ->name('dashboard');
+
+Route::get('/my-dashboard', [CustomerDashboardController::class, 'index'])
+->middleware(['auth', 'verified', 'access_control:customer'])
+->name('customer.dashboard');
 
 
 Route::middleware('auth')->group(function () {

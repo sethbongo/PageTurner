@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use App\Models\Category;
 use App\Models\Order;
+use App\Models\Review;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -14,11 +15,40 @@ class AdminController extends Controller
     public function admin_home(){
         $totalBooks = Book::count();
         $totalCategories = Category::count();
-        $totalOrders = Order::count();
+        $totalOrders = Order::where('status', '!=', 'Cart')->count();
         $totalUsers = User::where('role', 'customer')->count();
         $categories = Category::all();
         
-        return view('admin.admin-home', compact('totalBooks', 'totalCategories', 'totalOrders', 'totalUsers', 'categories'));
+        // Recent orders (latest 10)
+        $recentOrders = Order::with(['user', 'orderItems'])
+            ->where('status', '!=', 'Cart')
+            ->latest()
+            ->take(10)
+            ->get();
+        
+        // Order status summary
+        $orderStatusSummary = Order::where('status', '!=', 'Cart')
+            ->selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->get()
+            ->pluck('count', 'status');
+        
+        // Recent customer reviews (latest 10)
+        $recentReviews = Review::with(['user', 'book'])
+            ->latest()
+            ->take(10)
+            ->get();
+        
+        return view('admin.admin-home', compact(
+            'totalBooks', 
+            'totalCategories', 
+            'totalOrders', 
+            'totalUsers', 
+            'categories',
+            'recentOrders',
+            'orderStatusSummary',
+            'recentReviews'
+        ));
     }
 
     public function storeBook(Request $request)

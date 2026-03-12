@@ -20,3 +20,21 @@
     </x-nav-link>
 </div>
 @endsection
+
+@section('responsive-navlinks')
+    <x-responsive-nav-link :href="route('admin_home')" :active="request()->routeIs('admin_home')">
+        {{ __('Dashboard') }}
+    </x-responsive-nav-link>
+
+    <x-responsive-nav-link :href="route('admin.manage_books')" :active="request()->routeIs('admin.manage_books')">
+        {{ __('Manage Books') }}
+    </x-responsive-nav-link>
+
+    <x-responsive-nav-link :href="route('admin.manage_categories')" :active="request()->routeIs('admin.manage_categories')">
+        {{ __('Manage Categories') }}
+    </x-responsive-nav-link>
+
+    <x-responsive-nav-link :href="route('admin.customer_orders')" :active="request()->routeIs('admin.customer_orders')">
+        {{ __('Customer Orders') }}
+    </x-responsive-nav-link>
+@endsection
