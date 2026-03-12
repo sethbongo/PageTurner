@@ -25,7 +25,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'suffix',
         'email',
         'password',
-        'role'
+        'role',
+        'two_factor_enabled',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
+        'two_factor_confirmed_at',
     ];
 
     /**
@@ -36,6 +40,8 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     /**
@@ -48,6 +54,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'two_factor_confirmed_at' => 'datetime',
         ];
     }
 
@@ -70,5 +77,22 @@ class User extends Authenticatable implements MustVerifyEmail
     public function reviews()
     {
         return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Get the recovery codes for the user.
+     */
+    public function recoveryCodes(): array
+    {
+        return json_decode($this->two_factor_recovery_codes, true) ?? [];
+    }
+
+    /**
+     * Replace the recovery codes for the user.
+     */
+    public function replaceRecoveryCodes(array $codes): void
+    {
+        $this->two_factor_recovery_codes = json_encode($codes);
+        $this->save();
     }
 }

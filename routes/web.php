@@ -45,7 +45,7 @@ Route::patch('/admin/orders/{order}', [AdminController::class, 'updateOrderStatu
 });
 
 
-Route::middleware('access_control:customer')->group(function () {
+Route::middleware(['access_control:customer', 'verified'])->group(function () {
  Route::get('/cart', [CartController::class, 'cart_view'])->name('cart');
 Route::patch('/cart/update/{orderItem}', [CartController::class, 'update_quantity'])->name('cart.update');
 Route::delete('/cart/remove/{orderItem}', [CartController::class, 'remove_from_cart'])->name('cart.remove');
