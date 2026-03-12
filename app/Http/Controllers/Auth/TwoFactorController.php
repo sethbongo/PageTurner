@@ -29,6 +29,13 @@ class TwoFactorController extends Controller
             'two_factor_confirmed_at' => now(),
         ]);
 
+        // Send notification
+        try {
+            $user->notify(new \App\Notifications\TwoFactorEnabledNotification());
+        } catch (\Exception $e) {
+            \Log::error('Failed to send 2FA enabled notification: ' . $e->getMessage());
+        }
+
         return redirect()->route('profile.edit')
             ->with('status', '2fa-enabled')
             ->with('recovery_codes', $recoveryCodes);
@@ -51,6 +58,13 @@ class TwoFactorController extends Controller
             'two_factor_recovery_codes' => null,
             'two_factor_confirmed_at' => null,
         ]);
+
+        // Send notification
+        try {
+            $user->notify(new \App\Notifications\TwoFactorDisabledNotification());
+        } catch (\Exception $e) {
+            \Log::error('Failed to send 2FA disabled notification: ' . $e->getMessage());
+        }
 
         return redirect()->route('profile.edit')
             ->with('status', '2fa-disabled');

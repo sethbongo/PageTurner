@@ -70,8 +70,25 @@ class PurchasedBooksController extends Controller
             'rating' => $validated['rating'],
             'comment' => $validated['comment'],
         ]);
+
+        // Get the created review with relationships
+        $review = Review::with(['book', 'user'])
+            ->where('user_id', $user->id)
+            ->where('book_id', $bookId)
+            ->latest()
+            ->first();
+
+        // Send notification to all admins
+        try {
+            $admins = \App\Models\User::where('role', 'admin')->get();
+            if ($admins->isNotEmpty()) {
+                \Illuminate\Support\Facades\Notification::send($admins, new \App\Notifications\NewReviewAdminNotification($review));
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to send review notification: ' . $e->getMessage());
+        }
         
-        return redirect()->route('purchased-books.index')
+        return redirect()->route('purchased-books.show')
             ->with('success', 'Your review has been submitted successfully!');
     }
 }

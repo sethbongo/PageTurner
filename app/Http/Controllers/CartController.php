@@ -195,6 +195,23 @@ public function add_to_cart(Request $request){
             'updated_at' => now()
         ]);
 
+        // Send notification to customer
+        try {
+            $cartOrder->user->notify(new \App\Notifications\OrderPlacedNotification($cartOrder));
+        } catch (\Exception $e) {
+            \Log::error('Failed to send order placed notification: ' . $e->getMessage());
+        }
+
+        // Send notification to all admins
+        try {
+            $admins = \App\Models\User::where('role', 'admin')->get();
+            if ($admins->isNotEmpty()) {
+                \Illuminate\Support\Facades\Notification::send($admins, new \App\Notifications\NewOrderAdminNotification($cartOrder));
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to send admin order notification: ' . $e->getMessage());
+        }
+
         return redirect()->route('dashboard')
             ->with('success', 'Order placed successfully! Your order total is $' . number_format($cartOrder->total_amount, 2));
     }

@@ -142,7 +142,17 @@ class AdminController extends Controller
             'status' => 'required|in:Pending,Processing,Delivered,Cancelled,Failed,Shipped,Cart'
         ]);
 
+        $oldStatus = $order->status;
         $order->update($validated);
+
+        // Send notification to customer if status changed
+        if ($oldStatus !== $validated['status']) {
+            try {
+                $order->user->notify(new \App\Notifications\OrderStatusChangedNotification($order, $oldStatus));
+            } catch (\Exception $e) {
+                \Log::error('Failed to send order status notification: ' . $e->getMessage());
+            }
+        }
 
         return redirect()->route('admin.customer_orders')->with('success', 'Order status updated successfully!');
     }
