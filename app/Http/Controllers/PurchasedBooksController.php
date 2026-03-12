@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Book;
 use App\Models\Review;
 use Illuminate\Http\Request;
 
@@ -37,27 +38,10 @@ class PurchasedBooksController extends Controller
     public function storeReview(Request $request, $bookId)
     {
         $user = auth()->user();
+        $book = Book::findOrFail($bookId);
         
-        // Verify the user has purchased this book (has a delivered order with this book)
-        $hasPurchased = $user->orders()
-            ->where('status', 'Delivered')
-            ->whereHas('orderItems', function($query) use ($bookId) {
-                $query->where('book_id', $bookId);
-            })
-            ->exists();
-        
-        if (!$hasPurchased) {
-            return redirect()->back()->withErrors(['error' => 'You can only review books you have purchased.']);
-        }
-        
-        // Check if user has already reviewed this book
-        $existingReview = $user->reviews()
-            ->where('book_id', $bookId)
-            ->first();
-        
-        if ($existingReview) {
-            return redirect()->back()->withErrors(['error' => 'You have already reviewed this book.']);
-        }
+        // Use policy to check if user can create review
+        $this->authorize('create', [Review::class, $book]);
         
         $validated = $request->validate([
             'rating' => 'required|integer|min:1|max:5',

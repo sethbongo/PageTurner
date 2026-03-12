@@ -21,9 +21,7 @@ class OrderController extends Controller
     {
         $order = Order::findOrFail($orderId);
 
-        if ($order->user_id !== auth()->id()) {
-            return redirect()->route('orders.show')->withErrors(['error' => 'Unauthorized access.']);
-        }
+        $this->authorize('cancel', $order);
 
         if (!in_array($order->status, ['Pending', 'Processing'])) {
             return redirect()->route('orders.show')

@@ -53,6 +53,8 @@ class AdminController extends Controller
 
     public function storeBook(Request $request)
     {
+        $this->authorize('create', Book::class);
+        
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'author' => 'required|string|max:255',
@@ -76,6 +78,8 @@ class AdminController extends Controller
 
     public function storeCategory(Request $request)
     {
+        $this->authorize('create', Category::class);
+        
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name',
             'description' => 'nullable|string',
@@ -94,6 +98,8 @@ class AdminController extends Controller
 
     public function updateBook(Request $request, Book $book)
     {
+        $this->authorize('update', $book);
+        
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'author' => 'required|string|max:255',
@@ -121,6 +127,8 @@ class AdminController extends Controller
 
     public function deleteBook(Book $book)
     {
+        $this->authorize('delete', $book);
+        
         if ($book->cover_image) {
             Storage::disk('public')->delete($book->cover_image);
         }
@@ -137,6 +145,8 @@ class AdminController extends Controller
 
     public function updateCategory(Request $request, Category $category)
     {
+        $this->authorize('update', $category);
+        
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
             'description' => 'nullable|string',
@@ -149,6 +159,8 @@ class AdminController extends Controller
 
     public function deleteCategory(Category $category)
     {
+        $this->authorize('delete', $category);
+        
         if ($category->books()->count() > 0) {
             return redirect()->route('admin.manage_categories')->with('error', 'Cannot delete category with existing books!');
         }
@@ -168,6 +180,8 @@ class AdminController extends Controller
 
     public function updateOrderStatus(Request $request, Order $order)
     {
+        $this->authorize('update', $order);
+        
         $validated = $request->validate([
             'status' => 'required|in:Pending,Processing,Delivered,Cancelled,Failed,Shipped,Cart'
         ]);

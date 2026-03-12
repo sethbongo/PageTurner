@@ -14,7 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo('/');
         $middleware->alias([
             'role_redirect'=> \App\Http\Middleware\RoleMiddleware::class,
-            'access_control'=> \App\Http\Middleware\AccessMiddleware::class
+            'access_control'=> \App\Http\Middleware\AccessMiddleware::class,
+            'two_factor'=> \App\Http\Middleware\EnsureTwoFactorAuthenticated::class
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
