@@ -5,7 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\User;
+use App\Notifications\NewOrderAdminNotification;
+use App\Notifications\OrderPlacedNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 class CartController extends Controller
 {
@@ -197,16 +201,16 @@ public function add_to_cart(Request $request){
 
         // Send notification to customer
         try {
-            $cartOrder->user->notify(new \App\Notifications\OrderPlacedNotification($cartOrder));
+            $cartOrder->user->notify(new OrderPlacedNotification($cartOrder));
         } catch (\Exception $e) {
             \Log::error('Failed to send order placed notification: ' . $e->getMessage());
         }
 
         // Send notification to all admins
         try {
-            $admins = \App\Models\User::where('role', 'admin')->get();
+            $admins = User::where('role', 'admin')->get();
             if ($admins->isNotEmpty()) {
-                \Illuminate\Support\Facades\Notification::send($admins, new \App\Notifications\NewOrderAdminNotification($cartOrder));
+                Notification::send($admins, new NewOrderAdminNotification($cartOrder));
             }
         } catch (\Exception $e) {
             \Log::error('Failed to send admin order notification: ' . $e->getMessage());

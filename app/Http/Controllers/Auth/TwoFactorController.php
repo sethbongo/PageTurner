@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Notifications\TwoFactorDisabledNotification;
+use App\Notifications\TwoFactorEnabledNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -31,7 +33,7 @@ class TwoFactorController extends Controller
 
         // Send notification
         try {
-            $user->notify(new \App\Notifications\TwoFactorEnabledNotification());
+            $user->notify(new TwoFactorEnabledNotification());
         } catch (\Exception $e) {
             \Log::error('Failed to send 2FA enabled notification: ' . $e->getMessage());
         }
@@ -61,7 +63,7 @@ class TwoFactorController extends Controller
 
         // Send notification
         try {
-            $user->notify(new \App\Notifications\TwoFactorDisabledNotification());
+            $user->notify(new TwoFactorDisabledNotification());
         } catch (\Exception $e) {
             \Log::error('Failed to send 2FA disabled notification: ' . $e->getMessage());
         }

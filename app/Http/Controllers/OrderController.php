@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrderController extends Controller
 {
@@ -29,7 +30,7 @@ class OrderController extends Controller
         }
 
         $orderItems = $order->orderItems()->with('book')->get();
-        
+
         foreach ($orderItems as $item) {
             $book = $item->book;
             $book->stock_quantity += $item->quantity;
@@ -42,5 +43,16 @@ class OrderController extends Controller
 
         return redirect()->route('orders.show')
             ->with('success', 'Order #' . $order->id . ' has been cancelled successfully. Stock has been restored.');
+    }
+
+    public function downloadInvoice(Order $order)
+    {
+        $this->authorize('view', $order);
+
+        $order->load(['user', 'orderItems.book']);
+
+        $pdf = Pdf::loadView('pdf.order-invoice', compact('order'));
+
+        return $pdf->download('invoice-' . $order->id . '.pdf');
     }
 }
