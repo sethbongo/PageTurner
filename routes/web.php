@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\BackupController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CustomerDashboardController;
@@ -59,6 +60,13 @@ Route::middleware('access_control:admin')->group(function () {
     Route::post('/admin/exports/users', [ImportExportController::class, 'exportUsers'])->name('admin.exports.users');
     Route::get('/admin/imports/{log}/failures', [ImportExportController::class, 'downloadImportFailures'])->name('admin.imports.failures');
     Route::get('/admin/exports/{log}/download', [ImportExportController::class, 'downloadExportFile'])->name('admin.exports.download');
+
+    // Backup and Maintenance Routes (4.2)
+    Route::get('/admin/backups', [BackupController::class, 'index'])->name('admin.backups.index');
+    Route::post('/admin/backups/trigger', [BackupController::class, 'trigger'])->name('admin.backups.trigger');
+    Route::post('/admin/backups/cleanup', [BackupController::class, 'cleanup'])->name('admin.backups.cleanup');
+    Route::get('/admin/backups/{filename}/download', [BackupController::class, 'download'])->name('admin.backups.download');
+    Route::delete('/admin/backups/{filename}', [BackupController::class, 'delete'])->name('admin.backups.delete');
 
 });
 
