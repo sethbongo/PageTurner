@@ -7,20 +7,18 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('audit_logs', function (Blueprint $table) {
+        Schema::create('archived_audit_logs', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->string('event')->index(); // created, updated, deleted, force_deleted
+            $table->string('event')->index();
             $table->string('auditable_type')->nullable()->index();
             $table->unsignedBigInteger('auditable_id')->nullable();
-            $table->json('old_values')->nullable();
-            $table->json('new_values')->nullable();
-            $table->json('metadata')->nullable(); // ip_address, user_agent, url, method, etc
-            $table->string('checksum')->unique()->index(); // tamper-proof checksum
-            $table->boolean('archived')->default(false)->index();
+            $table->longText('old_values')->nullable(); // longText for archived data
+            $table->longText('new_values')->nullable();
+            $table->json('metadata')->nullable();
+            $table->string('checksum')->unique()->index();
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
             $table->index(['auditable_type', 'auditable_id']);
             $table->index('created_at');
             $table->index('event');
@@ -29,6 +27,6 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('audit_logs');
+        Schema::dropIfExists('archived_audit_logs');
     }
 };

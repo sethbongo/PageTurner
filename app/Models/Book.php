@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Book extends Model
 {
-        use HasFactory;
+    use HasFactory, Auditable;
 
     protected $fillable = [
         'category_id',
@@ -32,14 +33,15 @@ class Book extends Model
         return $this->reviews()->avg('rating') ?? 0;
     }
 
-  
+
     public function category()
     {
         return $this->belongsTo(Category::class);
     }
 
-   
-    public function reviews(){
+
+    public function reviews()
+    {
         return $this->hasMany(Review::class);
     }
 

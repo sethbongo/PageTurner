@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Review extends Model
 {
-    use HasFactory;
-    protected $fillable = [ 
+    use HasFactory, Auditable;
+    protected $fillable = [
         'user_id',
         'book_id',
         'rating',

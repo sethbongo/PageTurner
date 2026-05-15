@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AuditController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\CartController;
@@ -67,6 +68,14 @@ Route::middleware('access_control:admin')->group(function () {
     Route::post('/admin/backups/cleanup', [BackupController::class, 'cleanup'])->name('admin.backups.cleanup');
     Route::get('/admin/backups/{filename}/download', [BackupController::class, 'download'])->name('admin.backups.download');
     Route::delete('/admin/backups/{filename}', [BackupController::class, 'delete'])->name('admin.backups.delete');
+
+    // Audit Logging and Compliance Routes (4.3)
+    Route::get('/admin/audit', [AuditController::class, 'index'])->name('audit.index');
+    Route::get('/admin/audit/{auditLog}', [AuditController::class, 'show'])->name('audit.show');
+    Route::get('/admin/audit/export/csv', [AuditController::class, 'exportCsv'])->name('audit.export-csv');
+    Route::get('/admin/audit/export/pdf', [AuditController::class, 'exportPdf'])->name('audit.export-pdf');
+    Route::get('/admin/audit/api/statistics', [AuditController::class, 'statistics'])->name('audit.statistics');
+    Route::get('/admin/audit/api/critical', [AuditController::class, 'recentCritical'])->name('audit.recent-critical');
 
 });
 
