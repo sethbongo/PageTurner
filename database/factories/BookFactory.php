@@ -10,6 +10,17 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class BookFactory extends Factory
 {
+    private static array $categoryIds = [];
+    private static array $publishers = [
+        'Penguin Random House', 'Simon & Schuster', 'Hachette Livre',
+        'HarperCollins', 'Macmillan Publishers', 'Scholastic',
+        'Disney Publishing Worldwide', 'Houghton Mifflin Harcourt',
+        'Pearson Education', 'Oxford University Press', 'Wiley',
+        'Springer Nature', 'McGraw-Hill Education', 'Cengage Learning',
+        'Routledge'
+    ];
+    private static array $formats = ['Hardcover', 'Paperback', 'E-book', 'Audiobook'];
+
     /**
      * Define the model's default state.
      *
@@ -17,15 +28,60 @@ class BookFactory extends Factory
      */
     public function definition(): array
     {
+        if (empty(self::$categoryIds)) {
+            self::$categoryIds = \App\Models\Category::pluck('id')->toArray();
+        }
+
+        $format = $this->faker->randomElement(self::$formats);
+        
+        $basePrice = match ($format) {
+            'Hardcover' => $this->faker->randomFloat(2, 20, 50),
+            'Paperback' => $this->faker->randomFloat(2, 10, 25),
+            'E-book' => $this->faker->randomFloat(2, 5, 15),
+            'Audiobook' => $this->faker->randomFloat(2, 15, 30),
+            default => 15.99,
+        };
+
         return [
-            'category_id'=> Category::inRandomOrder()->first()->id,
-            'title' => fake()->randomElement(['Game of Thrones', 'Harry Potter', 'Birds and Fire', 'The Hobbit']),
-            'author' => fake()->name(),
-            'isbn' => fake()->creditCardNumber(),
-            'price' => fake()->randomFloat(2, 10, 100),
-            'stock_quantity' => fake()->numberBetween(1,10),
-            'description' => fake()->sentence(),
-            'cover_image'=> fake()->imageUrl(640, 480, 'products', true),
+            'isbn' => $this->generateValidIsbn13(),
+            'title' => $this->faker->unique()->sentence(rand(2, 6)),
+            'author' => $this->faker->name(),
+            'publisher' => $this->faker->randomElement(self::$publishers),
+            'price' => $basePrice,
+            'stock_quantity' => $this->faker->numberBetween(0, 1000),
+            'category_id' => $this->faker->randomElement(self::$categoryIds),
+            'format' => $format,
+            'is_active' => $this->faker->boolean(85),
+            'description' => $this->faker->paragraph(2),
+            'cover_image' => null, // Speed up seeding by not generating image URLs
+            'published_at' => $this->faker->dateTimeBetween('-50 years', 'now')->format('Y-m-d'),
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
+    }
+
+    /**
+     * Generate a valid ISBN-13.
+     */
+    private function generateValidIsbn13(): string
+    {
+        $isbn = '978' . $this->faker->numerify('#########');
+        $sum = 0;
+        for ($i = 0; $i < 12; $i++) {
+            $sum += ($i % 2 === 0) ? (int)$isbn[$i] : (int)$isbn[$i] * 3;
+        }
+        $checksum = (10 - ($sum % 10)) % 10;
+        return $isbn . $checksum;
+    }
+
+    /**
+     * Indicate that the book is a bestseller.
+     */
+    public function bestseller(): self
+    {
+        return $this->state(fn (array $attributes) => [
+            'stock_quantity' => $this->faker->numberBetween(500, 1000),
+            'is_active' => true,
+        ]);
     }
 }

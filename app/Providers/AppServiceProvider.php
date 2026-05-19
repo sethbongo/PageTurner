@@ -15,6 +15,10 @@ use App\Policies\ReviewPolicy;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Http\Request;
+use App\Observers\BookObserver;
 use Spatie\Backup\Events\BackupHasFailed;
 use Spatie\Backup\Events\BackupWasSuccessful;
 use Spatie\Backup\Events\CleanupHasFailed;
@@ -70,6 +74,25 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('isCustomer', function ($user) {
             return $user && $user->role === 'customer';
+        });
+
+        // Register Observers
+        Book::observe(BookObserver::class);
+
+        // Intelligent Rate Limiting with Redis
+        RateLimiter::for('api', function (Request $request) {
+            $user = $request->user();
+            $tier = $user ? ($user->role === 'admin' ? 'admin' : 'standard') : 'public';
+            
+            $limits = [
+                'public' => 30,
+                'standard' => 60,
+                'premium' => 300,
+                'admin' => 1000,
+            ];
+            
+            return Limit::perMinute($limits[$tier] ?? 30)
+                ->by($user?->id ?: $request->ip());
         });
     }
 }

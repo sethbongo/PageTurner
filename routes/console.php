@@ -130,3 +130,8 @@ Schedule::command('backup:monitor')
     ->onSuccess(function () {
         \Illuminate\Support\Facades\Log::info('Backup monitoring completed');
     });
+
+// Hourly: Refresh materialized views
+Schedule::command('app:refresh-materialized-views')
+    ->hourly()
+    ->withoutOverlapping();

@@ -42,8 +42,11 @@ class BooksExport implements FromQuery, WithHeadings, WithMapping, WithCustomChu
 
     public function query(): Builder
     {
-        // Eager load category to prevent N+1 query problem
-        $query = Book::query()->with('category');
+        // Select specific columns and eager load category
+        $query = Book::query()
+            ->select(['id', 'isbn', 'title', 'author', 'price', 'stock_quantity', 'published_at', 'category_id', 'description', 'created_at'])
+            ->with('category:id,name')
+            ->where('is_active', true);
 
         if (!empty($this->filters['category_id'])) {
             $query->where('category_id', $this->filters['category_id']);
@@ -104,7 +107,7 @@ class BooksExport implements FromQuery, WithHeadings, WithMapping, WithCustomChu
 
     public function chunkSize(): int
     {
-        return 1000;
+        return 2000;
     }
 
     public function registerEvents(): array
