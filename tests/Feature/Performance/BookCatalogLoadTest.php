@@ -8,6 +8,15 @@ use Tests\TestCase;
 
 class BookCatalogLoadTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        
+        // Force the test to use the real PostgreSQL database instead of the in-memory SQLite
+        // database defined in phpunit.xml, because we need to test against the 1M seeded records.
+        $this->app['config']->set('database.default', 'pgsql');
+    }
+
     /**
      * Test concurrent catalog requests.
      */

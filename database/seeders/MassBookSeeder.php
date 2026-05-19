@@ -23,8 +23,14 @@ class MassBookSeeder extends Seeder
         while ($inserted < self::TOTAL_RECORDS) {
             $batchSize = min(self::CHUNK_SIZE, self::TOTAL_RECORDS - $inserted);
             
-            // Generate batch using make() — does NOT persist models
-            $books = \App\Models\Book::factory()->count($batchSize)->make()->toArray();
+            // Generate raw arrays directly to completely avoid Eloquent model hydration memory leaks
+            $books = \App\Models\Book::factory()->count($batchSize)->raw();
+            
+            // Cast the boolean to a string representation for PostgreSQL PDO
+            $books = array_map(function ($book) {
+                $book['is_active'] = $book['is_active'] ? 'true' : 'false';
+                return $book;
+            }, $books);
             
             // Raw batch insert for maximum throughput
             \Illuminate\Support\Facades\DB::table('books')->insert($books);

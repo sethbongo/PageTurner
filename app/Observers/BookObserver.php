@@ -36,6 +36,6 @@ class BookObserver
     protected function invalidateCache(Book $book): void
     {
         \Illuminate\Support\Facades\Cache::forget("book:isbn:{$book->isbn}");
-        \Illuminate\Support\Facades\Cache::tags(["category:{$book->category_id}"])->flush();
+        \Illuminate\Support\Facades\Cache::tags(['books'])->flush();
     }
 }

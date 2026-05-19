@@ -46,7 +46,7 @@ class BooksExport implements FromQuery, WithHeadings, WithMapping, WithCustomChu
         $query = Book::query()
             ->select(['id', 'isbn', 'title', 'author', 'price', 'stock_quantity', 'published_at', 'category_id', 'description', 'created_at'])
             ->with('category:id,name')
-            ->where('is_active', true);
+            ->where('is_active', 'true');
 
         if (!empty($this->filters['category_id'])) {
             $query->where('category_id', $this->filters['category_id']);

@@ -21,6 +21,8 @@ class BookFactory extends Factory
     ];
     private static array $formats = ['Hardcover', 'Paperback', 'E-book', 'Audiobook'];
 
+    private static ?int $isbnCounter = null;
+
     /**
      * Define the model's default state.
      *
@@ -44,7 +46,8 @@ class BookFactory extends Factory
 
         return [
             'isbn' => $this->generateValidIsbn13(),
-            'title' => $this->faker->unique()->sentence(rand(2, 6)),
+            // Removed unique() from title to save memory when seeding 1,000,000 records
+            'title' => $this->faker->sentence(rand(2, 6)),
             'author' => $this->faker->name(),
             'publisher' => $this->faker->randomElement(self::$publishers),
             'price' => $basePrice,
@@ -61,11 +64,21 @@ class BookFactory extends Factory
     }
 
     /**
-     * Generate a valid ISBN-13.
+     * Generate a valid ISBN-13 sequentially to guarantee uniqueness and avoid collisions.
      */
     private function generateValidIsbn13(): string
     {
-        $isbn = '978' . $this->faker->numerify('#########');
+        // Dynamically offset the counter based on max ID in the database 
+        // to prevent collisions if the seeder is restarted
+        if (self::$isbnCounter === null) {
+            $maxId = \Illuminate\Support\Facades\DB::table('books')->max('id') ?? 0;
+            self::$isbnCounter = 100000000 + $maxId;
+        }
+
+        // Use a static counter instead of faker to guarantee uniqueness
+        $sequence = (string) self::$isbnCounter++;
+        $isbn = '978' . str_pad($sequence, 9, '0', STR_PAD_LEFT);
+        
         $sum = 0;
         for ($i = 0; $i < 12; $i++) {
             $sum += ($i % 2 === 0) ? (int)$isbn[$i] : (int)$isbn[$i] * 3;

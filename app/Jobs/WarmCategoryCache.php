@@ -26,7 +26,7 @@ class WarmCategoryCache implements ShouldQueue
     {
         $books = \App\Models\Book::select(['id', 'title', 'author', 'price', 'stock_quantity'])
             ->where('category_id', $this->categoryId)
-            ->where('is_active', true)
+            ->where('is_active', 'true')
             ->orderBy('published_at', 'desc')
             ->limit(1000)
             ->get();

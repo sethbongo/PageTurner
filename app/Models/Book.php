@@ -75,7 +75,7 @@ class Book extends Model
             'author' => $this->author,
             'publisher' => $this->publisher,
             'description' => $this->description,
-            'category' => $this->category?->name,
+            // 'category' => $this->category?->name, // Commented out: The Scout 'database' driver searches columns directly.
             'format' => $this->format,
         ];
     }
