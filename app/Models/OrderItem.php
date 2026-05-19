@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class OrderItem extends Model
 {
-    use HasFactory;
+    use HasFactory, Auditable;
     protected $fillable = [
         'order_id',
         'book_id',
@@ -15,7 +16,7 @@ class OrderItem extends Model
         'unit_price',
     ];
 
-  
+
     public function order()
     {
         return $this->belongsTo(Order::class);

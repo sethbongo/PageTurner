@@ -8,8 +8,6 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\AuditLogsExport;
 
 class AuditController extends Controller
 {
@@ -27,10 +25,6 @@ class AuditController extends Controller
             $query->byEvent($request->event);
         }
 
-        // Filter by model type
-        if ($request->filled('model_type')) {
-            $query->byModel($request->model_type);
-        }
 
         // Filter by user
         if ($request->filled('user_id')) {
@@ -45,15 +39,6 @@ class AuditController extends Controller
             );
         }
 
-        // Filter by search term (in metadata)
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->whereJsonContains('metadata->ip_address', $search)
-                    ->orWhereJsonContains('metadata->url', $search)
-                    ->orWhereRaw("JSON_EXTRACT(metadata, '$.url') LIKE ?", ["%{$search}%"]);
-            });
-        }
 
         // Filter for critical events
         if ($request->boolean('critical_only')) {
@@ -73,11 +58,8 @@ class AuditController extends Controller
 
         $auditLogs = $query->orderBy('created_at', 'desc')->paginate(50);
 
-        // Get unique event types for filter dropdown
-        $eventTypes = AuditLog::distinct('event')->pluck('event');
-
-        // Get model types for filter dropdown
-        $modelTypes = AuditLog::distinct('auditable_type')->pluck('auditable_type');
+        // Allowed event types for filter dropdown
+        $eventTypes = collect(['created', 'updated', 'deleted']);
 
         // Get users for filter dropdown
         $users = User::orderBy('email')->pluck('email', 'id');
@@ -85,7 +67,6 @@ class AuditController extends Controller
         return view('admin.audit.index', compact(
             'auditLogs',
             'eventTypes',
-            'modelTypes',
             'users'
         ));
     }
@@ -102,23 +83,6 @@ class AuditController extends Controller
         $isValid = $service->verifyChecksum($auditLog);
 
         return view('admin.audit.show', compact('auditLog', 'isValid'));
-    }
-
-    /**
-     * Export audit logs to CSV
-     */
-    public function exportCsv(Request $request)
-    {
-        $this->authorize('isAdmin');
-
-        $query = $this->buildQuery($request);
-        $auditLogs = $query->get();
-
-        return Excel::download(
-            new AuditLogsExport($auditLogs),
-            'audit_logs_' . now()->format('Y-m-d_H-i-s') . '.csv',
-            \Maatwebsite\Excel\Excel::CSV
-        );
     }
 
     /**
@@ -201,9 +165,6 @@ class AuditController extends Controller
             $query->byEvent($request->event);
         }
 
-        if ($request->filled('model_type')) {
-            $query->byModel($request->model_type);
-        }
 
         if ($request->filled('user_id')) {
             $query->byUser($request->user_id);

@@ -74,7 +74,6 @@ Route::middleware('access_control:admin')->group(function () {
     // Audit Logging and Compliance Routes (4.3)
     Route::get('/admin/audit', [AuditController::class, 'index'])->name('audit.index');
     Route::get('/admin/audit/{auditLog}', [AuditController::class, 'show'])->name('audit.show');
-    Route::get('/admin/audit/export/csv', [AuditController::class, 'exportCsv'])->name('audit.export-csv');
     Route::get('/admin/audit/export/pdf', [AuditController::class, 'exportPdf'])->name('audit.export-pdf');
     Route::get('/admin/audit/api/statistics', [AuditController::class, 'statistics'])->name('audit.statistics');
     Route::get('/admin/audit/api/critical', [AuditController::class, 'recentCritical'])->name('audit.recent-critical');

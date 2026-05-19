@@ -47,21 +47,6 @@
                         </select>
                     </div>
 
-                    <!-- Model Type -->
-                    <div>
-                        <label for="model_type" class="block text-sm font-medium text-gray-700 mb-1">Model Type</label>
-                        <select name="model_type" id="model_type" class="w-full border border-gray-300 rounded-md px-3 py-2">
-                            <option value="">All Models</option>
-                            @foreach($modelTypes as $type)
-                                @if($type)
-                                    <option value="{{ $type }}" {{ request('model_type') === $type ? 'selected' : '' }}>
-                                        {{ class_basename($type) }}
-                                    </option>
-                                @endif
-                            @endforeach
-                        </select>
-                    </div>
-
                     <!-- User -->
                     <div>
                         <label for="user_id" class="block text-sm font-medium text-gray-700 mb-1">User</label>
@@ -89,12 +74,6 @@
                             class="w-full border border-gray-300 rounded-md px-3 py-2">
                     </div>
 
-                    <!-- Search -->
-                    <div>
-                        <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search (IP, URL)</label>
-                        <input type="text" name="search" id="search" placeholder="Search..." value="{{ request('search') }}" 
-                            class="w-full border border-gray-300 rounded-md px-3 py-2">
-                    </div>
                 </div>
 
                 <!-- Checkboxes -->
@@ -118,9 +97,6 @@
                     </button>
                     <a href="{{ route('audit.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                         Reset
-                    </a>
-                    <a href="{{ route('audit.export-csv', request()->query()) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                        📥 Export CSV
                     </a>
                     <a href="{{ route('audit.export-pdf', request()->query()) }}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
                         📄 Export PDF

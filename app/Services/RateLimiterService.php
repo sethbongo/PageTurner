@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Auth;
 
 class RateLimiterService
 {
+    private const RESET_SUFFIX = ':reset';
+
     /**
      * Get the rate limit tier for a request
      */
@@ -57,29 +59,48 @@ class RateLimiterService
      */
     public function isLimited(string $tier, string $action = 'api'): bool
     {
+        $result = $this->getLimitStatus($tier, $action);
+
+        return $result['limited'];
+    }
+
+    /**
+     * Determine which limit was exceeded (second/minute) and reset window.
+     */
+    public function getLimitStatus(string $tier, string $action = 'api'): array
+    {
         $config = $this->getLimitConfig($tier);
         $identifier = $this->getIdentifier();
 
         $cacheKey = $this->getCacheKey($identifier, $action);
         $secondKey = $this->getSecondCacheKey($identifier, $action);
 
-        // Get current request count for this minute
-        $minuteCount = Cache::get($cacheKey, 0);
+        $store = $this->getStore();
 
-        // Get current request count for this second
-        $secondCount = Cache::get($secondKey, 0);
+        $minuteCount = (int) $store->get($cacheKey, 0);
+        $secondCount = (int) $store->get($secondKey, 0);
 
-        // Check per-second limit (burst protection)
         if ($secondCount >= $config['per_second']) {
-            return true;
+            return [
+                'limited' => true,
+                'scope' => 'second',
+                'reset_in' => $this->getResetTimeForSecond($action),
+            ];
         }
 
-        // Check per-minute limit
         if ($minuteCount >= $config['requests']) {
-            return true;
+            return [
+                'limited' => true,
+                'scope' => 'minute',
+                'reset_in' => $this->getResetTime($action),
+            ];
         }
 
-        return false;
+        return [
+            'limited' => false,
+            'scope' => null,
+            'reset_in' => 0,
+        ];
     }
 
     /**
@@ -91,11 +112,16 @@ class RateLimiterService
         $cacheKey = $this->getCacheKey($identifier, $action);
         $secondKey = $this->getSecondCacheKey($identifier, $action);
 
-        // Increment minute counter (1 minute TTL)
-        Cache::increment($cacheKey, 1, 60);
+        $store = $this->getStore();
 
-        // Increment second counter (1 second TTL)
-        Cache::increment($secondKey, 1, 1);
+        // Ensure TTLs are set before incrementing
+        $store->add($cacheKey, 0, 60);
+        $store->add($this->getResetKey($cacheKey), now()->addSeconds(60)->timestamp, 60);
+        $store->increment($cacheKey);
+
+        $store->add($secondKey, 0, 1);
+        $store->add($this->getResetKey($secondKey), now()->addSecond()->timestamp, 1);
+        $store->increment($secondKey);
     }
 
     /**
@@ -107,9 +133,20 @@ class RateLimiterService
         $identifier = $this->getIdentifier();
         $cacheKey = $this->getCacheKey($identifier, $action);
 
-        $count = Cache::get($cacheKey, 0);
+        $count = (int) $this->getStore()->get($cacheKey, 0);
 
         return max(0, $config['requests'] - $count);
+    }
+
+    public function getRemainingPerSecond(string $tier, string $action = 'api'): int
+    {
+        $config = $this->getLimitConfig($tier);
+        $identifier = $this->getIdentifier();
+        $cacheKey = $this->getSecondCacheKey($identifier, $action);
+
+        $count = (int) $this->getStore()->get($cacheKey, 0);
+
+        return max(0, ($config['per_second'] ?? 0) - $count);
     }
 
     /**
@@ -127,10 +164,18 @@ class RateLimiterService
     {
         $identifier = $this->getIdentifier();
         $cacheKey = $this->getCacheKey($identifier, $action);
+        $reset = (int) $this->getStore()->get($this->getResetKey($cacheKey), 0);
 
-        $ttl = Cache::getStore()->connection()->ttl($cacheKey);
+        return $this->secondsUntil($reset);
+    }
 
-        return max(0, $ttl);
+    public function getResetTimeForSecond(string $action = 'api'): int
+    {
+        $identifier = $this->getIdentifier();
+        $secondKey = $this->getSecondCacheKey($identifier, $action);
+        $reset = (int) $this->getStore()->get($this->getResetKey($secondKey), 0);
+
+        return $this->secondsUntil($reset);
     }
 
     /**
@@ -149,8 +194,10 @@ class RateLimiterService
         // Auth actions use IP-based limiting regardless of auth status
         $identifier = 'ip:' . request()->ip();
         $cacheKey = $this->getCacheKey($identifier, $action);
-
-        Cache::increment($cacheKey, 1, 60);
+        $store = $this->getStore();
+        $store->add($cacheKey, 0, 60);
+        $store->add($this->getResetKey($cacheKey), now()->addSeconds(60)->timestamp, 60);
+        $store->increment($cacheKey);
     }
 
     /**
@@ -160,9 +207,12 @@ class RateLimiterService
     {
         $cacheKey = $this->getCacheKey($identifier, $action);
         $secondKey = $this->getSecondCacheKey($identifier, $action);
+        $store = $this->getStore();
 
-        Cache::forget($cacheKey);
-        Cache::forget($secondKey);
+        $store->forget($cacheKey);
+        $store->forget($secondKey);
+        $store->forget($this->getResetKey($cacheKey));
+        $store->forget($this->getResetKey($secondKey));
     }
 
     /**
@@ -179,6 +229,25 @@ class RateLimiterService
     protected function getSecondCacheKey(string $identifier, string $action = 'api'): string
     {
         return config('api.cache_prefix') . "{$identifier}:{$action}:second";
+    }
+
+    protected function getResetKey(string $cacheKey): string
+    {
+        return $cacheKey . self::RESET_SUFFIX;
+    }
+
+    protected function secondsUntil(int $timestamp): int
+    {
+        if ($timestamp <= 0) {
+            return 0;
+        }
+
+        return max(0, $timestamp - now()->timestamp);
+    }
+
+    protected function getStore()
+    {
+        return Cache::store(config('api.cache_store'));
     }
 
     /**

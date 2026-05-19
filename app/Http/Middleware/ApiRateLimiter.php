@@ -37,8 +37,9 @@ class ApiRateLimiter
         }
 
         // Check if request is rate limited
-        if ($this->rateLimiter->isLimited($tier, $action)) {
-            return $this->createTooManyRequestsResponse($tier, $action);
+        $limitStatus = $this->rateLimiter->getLimitStatus($tier, $action);
+        if ($limitStatus['limited']) {
+            return $this->createTooManyRequestsResponse($tier, $action, $limitStatus);
         }
 
         // Record the hit
@@ -53,10 +54,12 @@ class ApiRateLimiter
     /**
      * Create 429 Too Many Requests response
      */
-    protected function createTooManyRequestsResponse(string $tier, string $action): Response
+    protected function createTooManyRequestsResponse(string $tier, string $action, array $limitStatus): Response
     {
-        $resetTime = $this->rateLimiter->getResetTime($action);
+        $resetTime = $limitStatus['reset_in'] ?? $this->rateLimiter->getResetTime($action);
         $limit = $this->rateLimiter->getLimit($tier);
+        $secondLimit = $this->rateLimiter->getLimitConfig($tier)['per_second'] ?? 0;
+        $secondReset = $this->rateLimiter->getResetTimeForSecond($action);
 
         return response()->json([
             'message' => 'Too many requests',
@@ -65,10 +68,15 @@ class ApiRateLimiter
             'limit' => $limit,
             'window' => '1 minute',
             'reset_in' => $resetTime . ' seconds',
+            'burst_limit' => $secondLimit,
+            'burst_reset_in' => $secondReset . ' seconds',
             'documentation' => 'https://api.example.com/docs/rate-limiting',
         ], 429)
             ->header('X-RateLimit-Limit', $limit)
             ->header('X-RateLimit-Remaining', 0)
+            ->header('X-RateLimit-Limit-Second', $secondLimit)
+            ->header('X-RateLimit-Remaining-Second', 0)
+            ->header('X-RateLimit-Reset-Second', time() + $secondReset)
             ->header('Retry-After', $resetTime);
     }
 
@@ -80,11 +88,17 @@ class ApiRateLimiter
         $limit = $this->rateLimiter->getLimit($tier);
         $remaining = $this->rateLimiter->getRemaining($tier, $action);
         $resetTime = $this->rateLimiter->getResetTime($action);
+        $secondLimit = $this->rateLimiter->getLimitConfig($tier)['per_second'] ?? 0;
+        $secondRemaining = $this->rateLimiter->getRemainingPerSecond($tier, $action);
+        $secondReset = $this->rateLimiter->getResetTimeForSecond($action);
 
         return $response
             ->header('X-RateLimit-Limit', $limit)
             ->header('X-RateLimit-Remaining', max(0, $remaining - 1))
             ->header('X-RateLimit-Reset', time() + $resetTime)
-            ->header('X-RateLimit-Tier', $tier);
+            ->header('X-RateLimit-Tier', $tier)
+            ->header('X-RateLimit-Limit-Second', $secondLimit)
+            ->header('X-RateLimit-Remaining-Second', max(0, $secondRemaining - 1))
+            ->header('X-RateLimit-Reset-Second', time() + $secondReset);
     }
 }

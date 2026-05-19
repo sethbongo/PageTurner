@@ -79,6 +79,11 @@
                             class="flex items-center p-4 border border-gray-300 hover:border-gray-400 rounded-lg transition-colors">
                             <span class="text-gray-700 font-medium"> Backups</span>
                         </a>
+
+                        <a href="{{ route('audit.index') }}"
+                            class="flex items-center p-4 border border-gray-300 hover:border-gray-400 rounded-lg transition-colors">
+                            <span class="text-gray-700 font-medium"> Audit Logs</span>
+                        </a>
                     </div>
                 </div>
             </div>

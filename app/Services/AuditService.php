@@ -183,10 +183,28 @@ class AuditService
         ?array $newValues,
         ?int $userId
     ): string {
+        return $this->generateChecksumFromValues(
+            $event,
+            $model?->getMorphClass(),
+            $model?->getKey(),
+            $oldValues,
+            $newValues,
+            $userId
+        );
+    }
+
+    protected function generateChecksumFromValues(
+        string $event,
+        ?string $auditableType,
+        ?string $auditableId,
+        ?array $oldValues,
+        ?array $newValues,
+        ?int $userId
+    ): string {
         $data = [
             'event' => $event,
-            'model_type' => $model?->getMorphClass() ?? null,
-            'model_id' => $model?->getKey() ?? null,
+            'model_type' => $auditableType,
+            'model_id' => $auditableId,
             'user_id' => $userId,
             'old_values' => $oldValues,
             'new_values' => $newValues,
@@ -200,9 +218,10 @@ class AuditService
      */
     public function verifyChecksum(AuditLog $auditLog): bool
     {
-        $expectedChecksum = $this->generateChecksum(
+        $expectedChecksum = $this->generateChecksumFromValues(
             $auditLog->event,
-            $auditLog->auditable,
+            $auditLog->auditable_type,
+            $auditLog->auditable_id ? (string) $auditLog->auditable_id : null,
             $auditLog->old_values,
             $auditLog->new_values,
             $auditLog->user_id
