@@ -21,7 +21,11 @@ class OrdersExport implements FromQuery, WithHeadings, WithMapping, WithCustomCh
 
     public function query(): Builder
     {
-        $query = Order::query()->with(['user', 'orderItems']);
+        // Eager load user and orderItems to prevent N+1 queries
+        // This significantly reduces database queries when exporting large datasets
+        $query = Order::query()
+            ->with(['user', 'orderItems'])
+            ->whereNot('status', 'Cart');
 
         if (!empty($this->filters['status'])) {
             $query->where('status', $this->filters['status']);
@@ -39,7 +43,8 @@ class OrdersExport implements FromQuery, WithHeadings, WithMapping, WithCustomCh
             $query->whereDate('created_at', '<=', $this->filters['date_to']);
         }
 
-        return $query->where('status', '!=', 'Cart')->orderBy('id');
+        // Use indexed column for ordering
+        return $query->orderBy('id');
     }
 
     public function headings(): array

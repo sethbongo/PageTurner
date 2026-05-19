@@ -19,6 +19,7 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Events\AfterImport;
+use Maatwebsite\Excel\Events\ImportFailed;
 use Maatwebsite\Excel\Row;
 use Maatwebsite\Excel\Validators\Failure;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
@@ -73,7 +74,7 @@ class BooksImport implements OnEachRow, WithHeadingRow, WithValidation, WithBatc
 
     public function rules(): array
     {
-        $isbnRules = ['required', 'string', 'max:20', new IsbnRule(), 'distinct'];
+        $isbnRules = ['required', 'max:20', new IsbnRule(), 'distinct'];
         if ($this->duplicateMode !== 'update') {
             $isbnRules[] = Rule::unique('books', 'isbn');
         }
@@ -120,6 +121,15 @@ class BooksImport implements OnEachRow, WithHeadingRow, WithValidation, WithBatc
             AfterImport::class => function (): void {
                 ImportExportLog::whereKey($this->logId)->update([
                     'status' => 'completed',
+                    'finished_at' => now(),
+                ]);
+            },
+            ImportFailed::class => function (ImportFailed $event): void {
+                $exception = $event->getException();
+
+                ImportExportLog::whereKey($this->logId)->update([
+                    'status' => 'failed',
+                    'error_summary' => $exception->getMessage(),
                     'finished_at' => now(),
                 ]);
             },

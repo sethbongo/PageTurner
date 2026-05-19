@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AuditController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\BookController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\ImportExportController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchasedBooksController;
+use App\Http\Controllers\UserDataPortabilityController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [BookController::class, 'get_books'])->name('guest_books');
@@ -77,6 +79,10 @@ Route::middleware('access_control:admin')->group(function () {
     Route::get('/admin/audit/api/statistics', [AuditController::class, 'statistics'])->name('audit.statistics');
     Route::get('/admin/audit/api/critical', [AuditController::class, 'recentCritical'])->name('audit.recent-critical');
 
+    // Enhanced Admin Dashboard Routes (9.1)
+    Route::get('/admin/dashboard/enhanced', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+    Route::post('/admin/dashboard/clear-cache', [AdminDashboardController::class, 'clearCache'])->name('admin.dashboard.clear-cache');
+
 });
 
 
@@ -94,6 +100,16 @@ Route::middleware(['access_control:customer', 'verified'])->group(function () {
     Route::post('/purchased-books/{book}/review', [PurchasedBooksController::class, 'storeReview'])->name('purchased-books.review');
 
     Route::post('/add_to_cart', [CartController::class, 'add_to_cart'])->name('add-to-cart');
+
+    // User Data Portability Routes (9.2)
+    Route::get('/data-portability', [UserDataPortabilityController::class, 'dashboard'])->name('user.data-portability.dashboard');
+    Route::get('/data-portability/exports', [UserDataPortabilityController::class, 'availableExports'])->name('user.data-portability.exports');
+    Route::post('/data-portability/export/personal-json', [UserDataPortabilityController::class, 'exportPersonalDataJson'])->name('user.data-portability.export-personal-json');
+    Route::post('/data-portability/export/orders-pdf', [UserDataPortabilityController::class, 'exportOrderHistoryPdf'])->name('user.data-portability.export-orders-pdf');
+    Route::post('/data-portability/export/orders-excel', [UserDataPortabilityController::class, 'exportOrderHistoryExcel'])->name('user.data-portability.export-orders-excel');
+    Route::post('/data-portability/export/reading-json', [UserDataPortabilityController::class, 'exportReadingHistoryJson'])->name('user.data-portability.export-reading-json');
+    Route::post('/data-portability/export/reading-pdf', [UserDataPortabilityController::class, 'exportReadingHistoryPdf'])->name('user.data-portability.export-reading-pdf');
+    Route::post('/data-portability/request-deletion', [UserDataPortabilityController::class, 'requestDataDeletion'])->name('user.data-portability.request-deletion');
 
 });
 

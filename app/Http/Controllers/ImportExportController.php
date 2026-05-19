@@ -136,19 +136,16 @@ class ImportExportController extends Controller
             return $pdf->download('books-export.pdf');
         }
 
-        $export = new BooksExport($filters, $columns);
         $count = $this->buildBookQuery($filters)->count();
+        $export = new BooksExport($filters, $columns, $log->id, $count);
 
         if ($count > 10000) {
             $filename = 'exports/books-export-' . now()->format('Ymd_His') . '.' . $validated['format'];
             Excel::queue($export, $filename, 'local');
 
             $log->update([
-                'status' => 'completed',
                 'stored_path' => $filename,
                 'total_rows' => $count,
-                'processed_rows' => $count,
-                'finished_at' => now(),
             ]);
 
             return redirect()->back()->with('success', 'Export queued. Download it from the logs when ready.');

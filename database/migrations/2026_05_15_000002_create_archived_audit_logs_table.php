@@ -10,7 +10,7 @@ return new class extends Migration {
         Schema::create('archived_audit_logs', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->string('event')->index();
+            $table->string('event');
             $table->string('auditable_type')->nullable()->index();
             $table->unsignedBigInteger('auditable_id')->nullable();
             $table->longText('old_values')->nullable(); // longText for archived data
@@ -21,7 +21,6 @@ return new class extends Migration {
 
             $table->index(['auditable_type', 'auditable_id']);
             $table->index('created_at');
-            $table->index('event');
         });
     }
 

@@ -24,8 +24,6 @@ Schedule::command('backup:run')
     ->withoutOverlapping()
     ->onFailure(function () {
         \Illuminate\Support\Facades\Log::error('Backup failed to complete');
-        app(\App\Notifications\BackupFailureNotification::class)
-            ->notify(new \App\Notifications\BackupNotifiable());
     })
     ->onSuccess(function () {
         \Illuminate\Support\Facades\Log::info('Backup completed successfully');

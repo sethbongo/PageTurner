@@ -7,13 +7,19 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Builder;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithCustomChunkSize;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Events\AfterExport;
+use Maatwebsite\Excel\Events\ExportFailed;
+use App\Models\ImportExportLog;
 
-class BooksExport implements FromQuery, WithHeadings, WithMapping, WithCustomChunkSize, ShouldQueue
+class BooksExport implements FromQuery, WithHeadings, WithMapping, WithCustomChunkSize, WithEvents, ShouldQueue
 {
     private array $filters;
     private array $columns;
+    private ?int $logId;
+    private ?int $totalRows;
 
     private array $columnMap = [
         'isbn' => 'ISBN',
@@ -26,14 +32,17 @@ class BooksExport implements FromQuery, WithHeadings, WithMapping, WithCustomChu
         'created_at' => 'Created At',
     ];
 
-    public function __construct(array $filters = [], array $columns = [])
+    public function __construct(array $filters = [], array $columns = [], ?int $logId = null, ?int $totalRows = null)
     {
         $this->filters = $filters;
         $this->columns = $columns ?: array_keys($this->columnMap);
+        $this->logId = $logId;
+        $this->totalRows = $totalRows;
     }
 
     public function query(): Builder
     {
+        // Eager load category to prevent N+1 query problem
         $query = Book::query()->with('category');
 
         if (!empty($this->filters['category_id'])) {
@@ -68,6 +77,7 @@ class BooksExport implements FromQuery, WithHeadings, WithMapping, WithCustomChu
             $query->whereDate('created_at', '<=', $this->filters['date_to']);
         }
 
+        // Use indexed column for ordering
         return $query->orderBy('id');
     }
 
@@ -95,5 +105,29 @@ class BooksExport implements FromQuery, WithHeadings, WithMapping, WithCustomChu
     public function chunkSize(): int
     {
         return 1000;
+    }
+
+    public function registerEvents(): array
+    {
+        if (!$this->logId) {
+            return [];
+        }
+
+        return [
+            AfterExport::class => function (): void {
+                ImportExportLog::whereKey($this->logId)->update([
+                    'status' => 'completed',
+                    'processed_rows' => $this->totalRows,
+                    'finished_at' => now(),
+                ]);
+            },
+            ExportFailed::class => function (ExportFailed $event): void {
+                ImportExportLog::whereKey($this->logId)->update([
+                    'status' => 'failed',
+                    'error_summary' => $event->getException()->getMessage(),
+                    'finished_at' => now(),
+                ]);
+            },
+        ];
     }
 }

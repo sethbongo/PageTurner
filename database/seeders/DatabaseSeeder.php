@@ -38,6 +38,10 @@ class DatabaseSeeder extends Seeder
         OrderItem::factory(10)->recycle($orders)->recycle($books)->create();
         Review::factory(10)->recycle($users)->recycle($books)->create();
 
-
-    }
+        // Seed new tables for Advanced Dashboard Enhancements (9)
+        $this->call([
+            ApiRateLimitSeeder::class,
+            ScheduledTaskSeeder::class,
+            BackupMonitoringSeeder::class,
+        ]);
 }

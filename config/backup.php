@@ -21,56 +21,35 @@ return [
                 ],
                 'follow_links' => false,
                 'timeout' => 1800,
+                'relative_path' => base_path(),
             ],
             'databases' => [
-                'mysql',
+                'pgsql',
             ],
         ],
 
         'database_dump' => [
-            'mysql' => [
-                'dump_command_path' => env('MYSQLDUMP_PATH', 'mysqldump'),
-                'restore_command_path' => env('MYSQL_RESTORE_PATH', 'mysql'),
+            'pgsql' => [
+                'dump_command_path' => env('PG_DUMP_PATH', 'pg_dump'),
+                'restore_command_path' => env('PG_RESTORE_PATH', 'pg_restore'),
                 'ignore_tables' => [
                     'sessions',
                     'failed_jobs',
                 ],
-                'use_single_transaction' => true,
                 'timeout' => 60,
-                'set_names_utf8' => true,
+                'use_custom_binary' => true,
             ],
         ],
 
         'destination' => [
             'disks' => [
                 'local',
-                's3',
             ],
         ],
 
         'password' => env('BACKUP_ENCRYPTION_PASSWORD'),
 
         'compression' => 'gzip',
-
-        'notifications' => [
-            'notifications' => [
-                \Spatie\Backup\Notifications\Notifications\BackupHasFailedNotification::class,
-                \Spatie\Backup\Notifications\Notifications\UnhealthyBackupFoundNotification::class,
-            ],
-
-            'notifiable' => \App\Notifications\BackupNotifiable::class,
-
-            'mail' => [
-                'to' => env('BACKUP_ADMIN_EMAIL', env('MAIL_FROM_ADDRESS')),
-            ],
-
-            'slack' => [
-                'webhook_url' => env('BACKUP_SLACK_WEBHOOK'),
-                'channel' => '#backups',
-                'username' => 'Backup Bot',
-                'icon' => ':package:',
-            ],
-        ],
 
         'cleanup' => [
             'default_strategy' => 'keep_all',
@@ -98,29 +77,14 @@ return [
         'log_channel' => null,
     ],
 
+
     'monitor_backups' => [
-        'enabled' => true,
-
-        'monitoring_jobs' => [
-            \Spatie\Backup\Tasks\Monitor\HealthChecks\HealthCheck::class,
-        ],
-
-        'notification_channels' => ['mail'],
-
-        'mail' => [
-            'to' => env('BACKUP_ADMIN_EMAIL', env('MAIL_FROM_ADDRESS')),
-        ],
-
-        'slack' => [
-            'webhook_url' => env('BACKUP_SLACK_WEBHOOK'),
-        ],
-
-        'checks' => [
-            \Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumStorageUsedOnAnyDisk::class => [
-                'max_storage_used' => 5000, // in MB
-            ],
-            \Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumAgeOfTheOldestBackupInDays::class => [
-                'max_age_in_days' => 1,
+        [
+            'name' => env('APP_NAME', 'pageturner-bookstore'),
+            'disks' => ['local'],
+            'health_checks' => [
+                \Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumAgeInDays::class => 1,
+                \Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumStorageInMegabytes::class => 5000,
             ],
         ],
     ],
