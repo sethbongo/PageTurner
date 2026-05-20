@@ -43,6 +43,5 @@ class DatabaseSeeder extends Seeder
             ApiRateLimitSeeder::class,
             ScheduledTaskSeeder::class,
             BackupMonitoringSeeder::class,
-            MassBookSeeder::class, // 1 Million Book Challenge
         ]);
-    }
+}

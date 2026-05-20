@@ -6,12 +6,9 @@ use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-use Laravel\Scout\Searchable;
-use App\Traits\Shardable;
-
 class Book extends Model
 {
-    use HasFactory, Auditable, Searchable, Shardable;
+    use HasFactory, Auditable;
 
     protected $fillable = [
         'category_id',
@@ -22,15 +19,6 @@ class Book extends Model
         'stock_quantity',
         'description',
         'cover_image',
-        'published_at',
-        'publisher',
-        'format',
-        'is_active',
-    ];
-
-    protected $casts = [
-        'is_active' => 'boolean',
-        'published_at' => 'date',
     ];
 
     protected $appends = ['reviewCount', 'averageRating'];
@@ -65,23 +53,5 @@ class Book extends Model
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
-    }
-
-    public function toSearchableArray(): array
-    {
-        return [
-            'id' => $this->id,
-            'title' => $this->title,
-            'author' => $this->author,
-            'publisher' => $this->publisher,
-            'description' => $this->description,
-            // 'category' => $this->category?->name, // Commented out: The Scout 'database' driver searches columns directly.
-            'format' => $this->format,
-        ];
-    }
-
-    public function shouldBeSearchable(): bool
-    {
-        return $this->is_active;
     }
 }
